@@ -1,0 +1,40 @@
+# ----------------------------------------
+# Hændelser
+# ----------------------------------------
+Hændelsesnavn,Antal,Brugere,Markér som konvertering
+ACTIONBAR_SELECT,263,97,false
+ACTIONBAR_SELECT_PLAY_ICON,13,6,false
+app_clear_data,4,4,false
+app_remove,183,183,false
+app_update,431,430,false
+EVENT_FOLLOW,46,40,true
+EVENT_OPEN,4610,819,false
+EVENT_SELECT,354,151,false
+EVENT_UNFOLLOW,8,8,false
+FEEDBACK_SELECT,0,0,false
+first_open,866,866,true
+LIST_OPEN,726,329,false
+LIST_OPEN_,1,1,false
+LIST_OPEN_P4LIST,12,6,false
+LIST_SELECT,1331,397,false
+LIST_SELECT_itemtype_P4Area,1,1,false
+MAP_SELECT,27675,3883,false
+MAP_SELECT_Glatføre,28,14,false
+MAP_SELECT_Saltning,3,2,false
+MAP_SELECT_Temperatur,2,1,false
+MAP_SELECT_Trafikinfo,24,8,false
+MAP_SELECT_Vind,2,1,false
+MAP_SELECT_Webkamera,2,1,false
+NAVIGATIONMENU_OPEN,898,551,false
+NAVIGATIONMENU_OPEN_,8,3,false
+NAVIGATIONMENU_SELECT,193,135,false
+os_update,1817,1799,false
+SCREEN_START,8781,1322,false
+SCREEN_START_MainActivity,60,16,false
+SCREEN_VIEW,31022,4263,false
+screen_view,2,1,false
+SCREEN_VIEW_,0,0,false
+session_start,7022,2631,false
+WEBCAM_FOLLOW,118,55,false
+WEBCAM_OPEN,7324,706,false
+WEBCAM_UNFOLLOW,8,7,false

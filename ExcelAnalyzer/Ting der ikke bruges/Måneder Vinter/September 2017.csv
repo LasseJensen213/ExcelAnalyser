@@ -1,0 +1,50 @@
+# ----------------------------------------
+# Hændelser
+# ----------------------------------------
+Hændelsesnavn,Antal,Brugere,Markér som konvertering
+ACTIONBAR_SELECT,414,145,false
+ACTIONBAR_SELECT_CENTERPOSITION_ICON,1,1,false
+ACTIONBAR_SELECT_PLAY_ICON,10,6,false
+app_clear_data,5,5,false
+app_remove,205,205,false
+app_update,563,563,false
+EVENT_FOLLOW,147,82,true
+EVENT_OPEN,5898,1222,false
+EVENT_OPEN_fullscreen,3,1,false
+EVENT_SELECT,422,203,false
+EVENT_SELECT_CENTERPOSITION_ICON,13,3,false
+EVENT_START,1,1,false
+EVENT_UNFOLLOW,52,14,false
+first_open,1127,1127,true
+LIST_OPEN,1040,460,false
+LIST_OPEN_,13,6,false
+LIST_OPEN_P4LIST,5,4,false
+LIST_SELECT,2103,595,false
+LIST_SELECT_itemtype_P4Area,0,0,false
+LIST_SELECT_section_Trafikmeldinger,3,2,false
+LIST_SELECT_section_Webkamera,2,1,false
+MAP_SELECT,35715,4602,false
+MAP_SELECT_Glatføre,44,13,false
+MAP_SELECT_Saltning,37,6,false
+MAP_SELECT_Temperatur,6,3,false
+MAP_SELECT_Trafikinfo,117,31,false
+MAP_SELECT_Vind,13,5,false
+MAP_SELECT_Webkamera,10,5,false
+NAVIGATIONMENU_OPEN,1198,727,false
+NAVIGATIONMENU_OPEN_,41,11,false
+NAVIGATIONMENU_SELECT,318,196,false
+NAVIGATIONMENU_SELECT_ABOUT_APP,1,1,false
+NAVIGATIONMENU_SELECT_EMERGENCY_PHONE_OF,4,2,false
+NAVIGATIONMENU_SELECT_EMERGENCY_PHONE_ON,3,2,false
+NAVIGATIONMENU_SELECT_FEEDBACK,2,2,false
+NAVIGATIONMENU_SELECT_P4_AUTOPLAY_ON,1,1,false
+os_update,1787,1726,false
+SCREEN_START,11190,1641,false
+SCREEN_START_MainActivity,127,30,false
+SCREEN_VIEW,38274,4920,false
+screen_view,234,34,false
+SCREEN_VIEW_,46,4,false
+session_start,8645,3391,false
+WEBCAM_FOLLOW,189,79,false
+WEBCAM_OPEN,8747,927,false
+WEBCAM_UNFOLLOW,20,12,false

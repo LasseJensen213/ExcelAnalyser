@@ -1,0 +1,20 @@
+#Author: Lasse Alexander Jensen 2018
+
+#This is the config file for the google analytics thing
+#Putting a # in the start of the line indicates that the line is a comment and is therefore ignored
+
+#Put all the CSV files names in this file and split them by a comma. DO NOT ADD THE FILE TYPE. It's assumed that it's a .csv file. 
+#Note: The program removes the whitespaces before the filename. Therefore "   Test" becomes "Test". 
+#Example
+#fileName:August 2017, September 2017, Oktober 2017, November 2017, December 2017, Januar 2018, Februar 2018, Marts 2018, April 2018, Maj 2018, Juni 2018, Juli 201
+
+
+#Categories notes. Add all the columns in the csv file here. Don't leave 1 out, or it'll bug out. 
+#SortBy notes. The keyword NONE collects all the data into one sheet. This is the default data. So don't remove it. 
+
+
+#Config file starts here
+FOLDER_ACTIVE_USERS: activeUsers
+FOLDER_SESSIONS: sessions
+FOLDER_GENERAL_DATA: toSort
+SORT_BY: SCREEN, MAP
