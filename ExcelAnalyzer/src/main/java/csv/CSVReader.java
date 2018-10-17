@@ -24,62 +24,75 @@ public class CSVReader {
 	 * Reads a csv file and saves the information in the analyticsDTO
 	 * 
 	 * 
-	 * @param filEName - String 
+	 * @param fileName - String 
 	 * @param finalPath 
 	 * @param analyticsDTO - AnalyticsDTO
 	 * 
 	 */
 	public void readCSVFile(String fileName, String finalPath, AnalyticsDTO analyticsDTO) {
+		//Create a new sheetDTO with the fileName
 		SheetDTO sheet = new SheetDTO(fileName);
 
 		try {
+			//Create the reader
 			reader = new BufferedReader(new FileReader(finalPath));
+
+			//Boolean to check if we've reached the first line. 
 			boolean firstLineReached = false;
 			while ((line = reader.readLine()) != null) {
 				//System.out.println(line);
-				//#Means comment
+				//# Means comment
 
+				//Check if the line is a comment or if it is empty. 
 				if(line.isEmpty() || line.charAt(0) == commentChar) {
 					continue;
+				}
+
+				//Check for "". If it has "" consider the text between "" as a part. 
+
+				if(line.contains("\"")) {
+					//Replace any commas between the "" with a semi colon. 
+
+					int startIndex = line.indexOf("\"");
+					int endIndex = line.lastIndexOf("\"")+1;
+
+					String annotatedString = line.substring(startIndex, endIndex);
+					String newAnnotatedString = annotatedString.replace(',', ';');
+					line = line.replace(annotatedString, newAnnotatedString);
+
 				}
 
 				//Split the current line into individual parts
 				String[] row = line.split(csvSplitBy);
 
+				//Change the semi colon back to a comma. 
+				for(int i = 0; i< row.length;i++) {
+					if(row[i].contains(";")) {
+						row[i] = row[i].replace(";", ",");
+						row[i] = row[i].replaceAll("\"", "");
+						
+					}
+					
+				}
+				for(int i = 3;i<row.length;i++) {
+					if(row[i].contains(".")) {
+						row[i] = row[i].replace(".", "");
+
+					}
+				}
+				//Add the categories
 				if(!firstLineReached) {
-					String categoryToBeAdded = null;
-					String firstPart = null;
-					String secondPart = null;
 					for(String input : row) {
-						if(input.contains("\"")) {
-							input = input.replace("\"", "");
-							
-							if(firstPart == null) {
-								firstPart = input;
-							}
-							else if(secondPart == null) {
-								secondPart = input;
-								
-								categoryToBeAdded = firstPart + "," + secondPart;
-								firstPart = null;
-								secondPart = null;
-							}
-							
-						}
-						else {
-							categoryToBeAdded = input;
-						}
-						if(!analyticsDTO.categoryKnown(categoryToBeAdded)) {
-							analyticsDTO.addCategory(categoryToBeAdded);
+						if(!analyticsDTO.categoryKnown(input)) {
+							analyticsDTO.addCategory(input);
 						}
 					}
 					firstLineReached = true;
-					
 					continue;
 				}
 
 				//Assign information to variables
-				String eventName = row[0];
+				String eventName = row[0] + ";" + row[1] + ";" + row[2];
 				if(eventName.isEmpty()) {
 					break;
 				}
@@ -90,29 +103,13 @@ public class CSVReader {
 				}
 
 				ArrayList<String> rowValues = new ArrayList<String>();
-				//Run through values in the row. If it contains a " it means that a value was split up.
-				String firstPart = null;
-				String secondPart = null;
+				//Run through values in the row.
 				for(String rowValue : row) {
-					if(rowValue.contains("\"")) {
-						//First we remove the "
-						rowValue = rowValue.replace("\"", "");
-
-						//Then we save it to the correct part
-						if(firstPart == null) {
-							firstPart = rowValue;
-						}
-						else {
-							secondPart = rowValue;
-							rowValues.add(firstPart + "." + secondPart);
-						}
-						continue;
-
-					}
+					
 					rowValues.add(rowValue);
 
 				}
-				sheet.addRow(rowValues);
+				sheet.addRow(eventName, rowValues);
 
 			}
 			//We know have all the rows - Add the sheet to the analyticsDTO

@@ -1,6 +1,5 @@
 package excel;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,10 +13,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import analyzer.Values;
 import controller.Controller;
 import dataTransferObjects.AnalyticsDTO;
-import dataTransferObjects.RowElementDTO;
 import dataTransferObjects.SheetDTO;
 import exceptions.NoMatchingIdentifiersException;
 
@@ -45,12 +42,100 @@ public class ExcelController {
 
 
 
+
 	public ExcelController() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		//Initialize excel ark		
 		workbook = new XSSFWorkbook();
 		data = new AnalyticsDTO();
 	}
 
+
+
+	public void processData(AnalyticsDTO data) {
+		Sheet sheet = workbook.createSheet("Title");
+		int rowReached = 0;
+		//Insert the headers
+		Row headerRow = sheet.createRow(rowReached);
+		headerRow.createCell(0).setCellValue("fil navn");
+		for(int i = 0;i<data.getCategoryList().size();i++) {
+			headerRow.createCell(i+1).setCellValue(data.getCategoryList().get(i));
+		}
+		rowReached++;
+
+		//Iterate through the files
+		Row row;
+		int columnIndex = 0;
+		String[] addresses = new String[7];
+		for(int i = 0;i<data.getSheetList().size();i++) {
+			for(int rowIndex = 0;rowIndex<data.getSheetList().get(i).getNumberOfRows();rowIndex++) {
+				row = sheet.createRow(rowReached);
+				row.createCell(columnIndex).setCellValue(data.getSheetList().get(i).getSheetName());
+				columnIndex++;
+
+				for(int index = 0;index<data.getCategoryList().size();index++) {
+					String key = data.getColumnNameList().get(rowIndex);
+					String cellValue = null;
+					try {
+						cellValue = data.getSheetList().get(i).getRow(key).get(index);
+					}
+					catch(NullPointerException e) {
+						//e.printStackTrace();
+
+					}
+					if(index > 2) {
+						if(cellValue == null) {
+
+						}
+						else {
+							row.createCell(columnIndex).setCellValue(Integer.parseInt(cellValue));
+						}
+					}
+					else {
+						if(cellValue == null) {
+
+						}
+						else {
+							row.createCell(columnIndex).setCellValue(cellValue);
+						}
+
+					}
+					addresses[index] = row.getCell(columnIndex).getAddress().formatAsString();
+
+					columnIndex++;
+				}
+				for(AnalyticsDTO.calculationsTypes type: AnalyticsDTO.calculationsTypes.values()) {
+					row.createCell(columnIndex).setCellFormula(calculateFormula(type, data, addresses));
+					columnIndex++;
+				}
+				columnIndex = 0;
+
+
+				rowReached++;
+			}
+		}
+	}
+
+
+	private String calculateFormula(AnalyticsDTO.calculationsTypes type, AnalyticsDTO data, String[] addresses) {	
+		String formula = null;
+		switch (type) {
+		case CLICKS_PER_LABEL_PER_SESSION:
+			formula = addresses[data.getAllActivityIndex()] + "/" + addresses[data.getSessionsIndex()];
+			break;
+		case CLICKS_PER_LABEL_PER_USERS:
+			formula = addresses[data.getAllActivityIndex()] + "/" + addresses[data.getUsersIndex()];
+			break;
+		case UNIQUE_CLICKS_PER_LABEL_PER_USERS:
+			formula = addresses[data.getUniqueEventsIndex()] + "/" + addresses[data.getUsersIndex()];
+			break;
+		default:
+			break;
+
+		}
+		return formula;
+
+
+	}
 
 
 	/**
@@ -95,10 +180,10 @@ public class ExcelController {
 
 
 		int index = 0;
-		for(int i = 0;i<data.getEventNameList().size();i++) {
+		for(int i = 0;i<data.getColumnNameList().size();i++) {
 
 			//Get the event name for the row. 
-			eventName = data.getEventNameList().get(i);
+			eventName = data.getColumnNameList().get(i);
 
 
 			//If event is something we don't want, we skip the data element. 
@@ -107,9 +192,9 @@ public class ExcelController {
 					//System.out.println("Type: " + type + " EventName: " + eventName);
 					//Check to see if we want all the data. If not. We skip the data element
 					continue;
-					if(!type.equals(SortType.TOTAL.toString())) {
-						continue;
-					}
+				if(!type.equals(SortType.TOTAL.toString())) {
+					continue;
+				}
 			}
 
 			//Calculate the correct row
@@ -206,10 +291,10 @@ public class ExcelController {
 
 
 		int index = 0;
-		for(int i = 0;i<data.getEventNameList().size();i++) {
+		for(int i = 0;i<data.getColumnNameList().size();i++) {
 
 			//Get the event name for the row. 
-			eventName = data.getEventNameList().get(i);
+			eventName = data.getColumnNameList().get(i);
 
 
 			//If event is something we don't want, we skip the data element. 
@@ -308,10 +393,10 @@ public class ExcelController {
 		for(int i = 0;i<generalData.getSheetList().size();i++) {
 			int categoryIndex = 1 + i*numOfCategories*2;
 			headerrow.createCell(categoryIndex).setCellValue(generalData.getSheetList().get(i).getSheetName());
-			
+
 		}
-		
-		
+
+
 		//Insert the categories
 		Row subRow = sheet.createRow(1);
 		for(int i = 0;i<generalData.getSheetList().size();i++) {
@@ -343,10 +428,10 @@ public class ExcelController {
 
 
 		int index = 0;
-		for(int i = 0;i<generalData.getEventNameList().size();i++) {
+		for(int i = 0;i<generalData.getColumnNameList().size();i++) {
 
 			//Get the event name for the row. 
-			eventName = generalData.getEventNameList().get(i);
+			eventName = generalData.getColumnNameList().get(i);
 
 			//General sorting.
 			//If event is something we don't want, we skip the data element. 
@@ -355,9 +440,9 @@ public class ExcelController {
 					//System.out.println("Type: " + type + " EventName: " + eventName);
 					//Check to see if we want all the data. If not. We skip the data element
 					continue;
-					if(!type.equals(SortType.TOTAL.toString())) {
-						continue;
-					}
+				if(!type.equals(SortType.TOTAL.toString())) {
+					continue;
+				}
 			}
 
 			//Calculate the correct row
@@ -373,13 +458,13 @@ public class ExcelController {
 
 				//Calculate the current column
 				columnIndex = j*(numOfCategories)*2+this.dataColumnStart;
-				
+
 				//Get the current sheet
 				currentSheet = generalData.getSheetList().get(j);
 				String fileName = currentSheet.getSheetName();
 				int identifierEnd = fileName.indexOf("#");
 				String fileIdentifier = fileName.substring(0,identifierEnd);
-				
+
 				if(currentSheet.contains(eventName)) { 
 					row = currentSheet.getRow(eventName);
 					//Remove any excess information we don't want. 
@@ -411,7 +496,7 @@ public class ExcelController {
 							if(sessionValue == null || userValue == null) {
 								throw new NoMatchingIdentifiersException("No matching identifiers found for " + fileIdentifier);
 							}
-							
+
 							if(stringValue.contains(".")) {
 								stringValue = stringValue.replace(".", "");
 							}
@@ -431,7 +516,7 @@ public class ExcelController {
 								percentage = value/sessionTotal;
 								System.out.println(percentage);
 							}
-						
+
 							if(generalData.getCategoryList().get(2).equals("Unikke hændelser")) {
 								percentage = value/sessionTotal;
 								System.out.println("percentage");

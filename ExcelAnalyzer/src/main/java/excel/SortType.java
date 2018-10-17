@@ -1,8 +1,5 @@
 package excel;
 
-import configReader.configFileElement;
-import exceptions.IncorrectConfigFileException;
-
 public enum SortType {
 	TOTAL,	 				//Get the total data
 	EVENT,					//Get data about events
@@ -15,18 +12,18 @@ public enum SortType {
 	SUBSCRIPTIONS,			//Get data about subscriptions
 	PROJECT;				//Get data about the projects
 
-	
-	
-	
+
+
+
 	public static SortType fromString(String from){
-	    for (SortType type: SortType.values	()) {
-	        if (type.toString().startsWith(from)) {
-	            return type;
-	        }
-	    	
-	    }
+		for (SortType type: SortType.values	()) {
+			if (type.toString().startsWith(from)) {
+				return type;
+			}
+
+		}
 		return null;
 	}
-	
-	    		
+
+
 }

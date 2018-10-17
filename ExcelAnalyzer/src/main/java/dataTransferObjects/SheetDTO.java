@@ -30,9 +30,9 @@ public class SheetDTO {
 	}
 
 
-
-	public void addRow(ArrayList<String> element) {
-		this.rows.put(element.get(0), element);
+	
+	public void addRow(String key, ArrayList<String> element) {
+		this.rows.put(key, element);
 	}
 	
 	public boolean contains(String event) {
@@ -44,7 +44,10 @@ public class SheetDTO {
 	public ArrayList<String> getRow(String key) {
 		return rows.get(key);
 	}
-
+	
+	public int getNumberOfRows() {
+		return this.rows.size();
+	}
 
 	
 	
