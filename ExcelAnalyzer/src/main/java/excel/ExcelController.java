@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import controller.Controller;
@@ -21,12 +21,12 @@ import exceptions.NoMatchingIdentifiersException;
 public class ExcelController {
 
 
-	private Workbook workbook;
+	private XSSFWorkbook workbook;
 	private final String controlSheetName = "totalData";
 	private final String menuSheetName = "AppMenu";
 	private AnalyticsDTO data;
 
-	private final String path = "./OrkanData.xlsx";
+	private final String path = "./Google Analytics.xlsx";
 
 
 	//Header values
@@ -36,11 +36,14 @@ public class ExcelController {
 	private final int dataRowStart = 2;
 	private final int dataColumnStart = 1;
 
+	private String startAddress = "A1"; 
+	private String endAddress;
 
-
-
-
-
+	private int highestRowIndex = 0;
+	private int highestColumnIndex = 0;
+	
+	private String[] calculationHeaders = {"Antal klik på etiket/antal sessioner","Antal klik på etiket/antal brugere","Antal unikke klik på etiket/antal brugere"};
+	
 
 
 	public ExcelController() throws EncryptedDocumentException, InvalidFormatException, IOException {
@@ -56,9 +59,13 @@ public class ExcelController {
 		int rowReached = 0;
 		//Insert the headers
 		Row headerRow = sheet.createRow(rowReached);
-		headerRow.createCell(0).setCellValue("fil navn");
+		headerRow.createCell(0).setCellValue("Fil navn");
 		for(int i = 0;i<data.getCategoryList().size();i++) {
 			headerRow.createCell(i+1).setCellValue(data.getCategoryList().get(i));
+		}
+		
+		for(int i = 1;i<=3;i++) {
+			headerRow.createCell(data.getCategoryList().size()+i).setCellValue(this.calculationHeaders[i-1]);
 		}
 		rowReached++;
 
@@ -66,6 +73,7 @@ public class ExcelController {
 		Row row;
 		int columnIndex = 0;
 		String[] addresses = new String[7];
+		boolean skipRow = false;
 		for(int i = 0;i<data.getSheetList().size();i++) {
 			for(int rowIndex = 0;rowIndex<data.getSheetList().get(i).getNumberOfRows();rowIndex++) {
 				row = sheet.createRow(rowReached);
@@ -79,6 +87,9 @@ public class ExcelController {
 						cellValue = data.getSheetList().get(i).getRow(key).get(index);
 					}
 					catch(NullPointerException e) {
+						rowReached--;
+						skipRow = true;
+						break;
 						//e.printStackTrace();
 
 					}
@@ -103,18 +114,48 @@ public class ExcelController {
 
 					columnIndex++;
 				}
-				for(AnalyticsDTO.calculationsTypes type: AnalyticsDTO.calculationsTypes.values()) {
-					row.createCell(columnIndex).setCellFormula(calculateFormula(type, data, addresses));
-					columnIndex++;
+				if(!skipRow) {
+
+					for(AnalyticsDTO.calculationsTypes type: AnalyticsDTO.calculationsTypes.values()) {
+						row.createCell(columnIndex).setCellFormula(calculateFormula(type, data, addresses));
+						columnIndex++;
+					}
 				}
+				else {
+					skipRow = false;
+
+				}
+				setHighestColumnIndex(columnIndex);
 				columnIndex = 0;
 
 
 				rowReached++;
 			}
 		}
+		this.highestRowIndex = rowReached;
+		//this.endAddress = getEndAddress(sheet);
+		System.out.println("EndAddress: " + this.endAddress);
+		
 	}
 
+	private String getEndAddress(Sheet sheet) {
+		Row endRow = sheet.getRow(this.highestRowIndex);
+		if(endRow == null) {
+			endRow = sheet.getRow(highestRowIndex-1);
+		}
+		Cell endCell = endRow.getCell(this.highestColumnIndex);
+		if(endCell == null) {
+			endCell = endRow.getCell(this.highestColumnIndex-1);
+		}
+		return endCell.getAddress().formatAsString();
+	}
+	private void setHighestColumnIndex(int index) {
+		if(this.highestColumnIndex < index) {
+			this.highestColumnIndex = index;
+		}
+	}
+	
+	
 
 	private String calculateFormula(AnalyticsDTO.calculationsTypes type, AnalyticsDTO data, String[] addresses) {	
 		String formula = null;
