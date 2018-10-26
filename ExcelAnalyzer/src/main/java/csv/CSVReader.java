@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import dataTransferObjects.AnalyticsDTO;
 import dataTransferObjects.RowElementDTO;
-import dataTransferObjects.SheetDTO;
+import dataTransferObjects.FileDTO;
 
 public class CSVReader {
 
@@ -29,9 +29,10 @@ public class CSVReader {
 	 * @param analyticsDTO - AnalyticsDTO
 	 * 
 	 */
-	public void readCSVFile(String fileName, String finalPath, AnalyticsDTO analyticsDTO) {
+	public void readCSVFile(String fileName, String directoryName, String finalPath, AnalyticsDTO analyticsDTO) {
 		//Create a new sheetDTO with the fileName
-		SheetDTO sheet = new SheetDTO(fileName);
+		analyticsDTO.addDirectory(directoryName);
+		FileDTO sheet = new FileDTO(fileName,directoryName);
 
 		try {
 			//Create the reader
@@ -83,6 +84,10 @@ public class CSVReader {
 				//Add the categories
 				if(!firstLineReached) {
 					for(String input : row) {
+						if(input.contains("æ")) {
+							input.replace("æ", "�");
+						}
+						
 						if(!analyticsDTO.categoryKnown(input)) {
 							analyticsDTO.addCategory(input);
 						}
@@ -103,6 +108,7 @@ public class CSVReader {
 				}
 
 				ArrayList<String> rowValues = new ArrayList<String>();
+				
 				//Run through values in the row.
 				for(String rowValue : row) {
 					
@@ -113,7 +119,7 @@ public class CSVReader {
 
 			}
 			//We know have all the rows - Add the sheet to the analyticsDTO
-			analyticsDTO.addSheet(sheet);
+			analyticsDTO.addFile(sheet);
 
 
 
@@ -134,4 +140,6 @@ public class CSVReader {
 	}
 
 
+	
+	
 }

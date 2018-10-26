@@ -7,9 +7,10 @@ public class AnalyticsDTO {
 	
 	private List<String> eventNameList;			//Collective list of events
 	private List<String> sheetNameList;			//Collective list of sheetNames
-	private List<SheetDTO> sheetList;			//Collective list of sheets - This is where the data is stored.
+	private List<FileDTO> sheetList;			//Collective list of sheets - This is where the data is stored.
 	private ConfigDTO configDTO;				//Config data. 
 	private List<String> categoryList;			//Collective list of categories 
+	private List<String> directoryNameList;		//Collective list of directory names
 	
 	//Data indexes
 	private final int eventCategoryIndex = 0;
@@ -23,17 +24,24 @@ public class AnalyticsDTO {
 	public enum calculationsTypes {CLICKS_PER_LABEL_PER_SESSION, CLICKS_PER_LABEL_PER_USERS,UNIQUE_CLICKS_PER_LABEL_PER_USERS};
 	
 	
+	
+	
 	public AnalyticsDTO() {
 		this.eventNameList = new ArrayList<String>();
 		this.sheetNameList = new ArrayList<String>();
-		this.sheetList = new ArrayList<SheetDTO>();
+		this.sheetList = new ArrayList<FileDTO>();
 		this.categoryList = new ArrayList<String>();
+		this.directoryNameList = new ArrayList<String>();
 		
 
 		
 		
 	}
 
+	/**
+	 * Returns a collective list of all of the events. i.e. Map:open:Vejarbejde
+	 * @return List<String>
+	 */
 	public List<String> getColumnNameList() {
 		return eventNameList;
 	}
@@ -55,11 +63,11 @@ public class AnalyticsDTO {
 		return eventNameList.contains(name);
 	}
 
-	public List<SheetDTO> getSheetList() {
+	public List<FileDTO> getFileList() {
 		return sheetList;
 	}
 
-	public void addSheet(SheetDTO sheet) {
+	public void addFile(FileDTO sheet) {
 		sheetList.add(sheet);
 	}
 
@@ -72,7 +80,7 @@ public class AnalyticsDTO {
 	}
 
 	/**
-	 * @return the categoryList
+	 * @return The headers. i.e. Hændelsesetiket, brugere.
 	 */
 	public List<String> getCategoryList() {
 		return categoryList;
@@ -87,6 +95,17 @@ public class AnalyticsDTO {
 
 	public boolean categoryKnown(String category) {
 		return this.categoryList.contains(category);
+	}
+	
+	public void addDirectory(String directory) {
+		if(!this.directoryNameList.contains(directory)) {
+			this.directoryNameList.add(directory);
+
+		}
+	}
+
+	public List<String> getDirectoryNameList() {
+		return directoryNameList;
 	}
 
 	public int getEventCategoryIndex() {

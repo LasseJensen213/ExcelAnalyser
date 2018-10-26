@@ -1,0 +1,13 @@
+# ----------------------------------------
+# Alle mobilappdata
+# Rapport til statistik
+# 20160401-20160430
+# ----------------------------------------
+
+Hændelseskategori,Handling ved hændelse,Hændelsesetiket,Al aktivitet,Sessioner,Unikke hændelser,Brugere
+views,entered,Area/MapChange/Trafikmeldinger,38.866,21.386,21.386,4.876
+views,entered,Area/MapChange/Webkamera,4.522,1.347,1.347,754
+views,entered,Area/MapChange/Vejarbejder,4.294,1.973,1.973,1.042
+views,entered,Area/Custom,1.202,869,869,272
+views,entered,Area/,489,376,376,307
+views,entered,Feedback,87,67,67,57

@@ -1,0 +1,15 @@
+# ----------------------------------------
+# Alle mobilappdata
+# Rapport til statistik
+# 20160801-20160831
+# ----------------------------------------
+
+Hændelseskategori,Handling ved hændelse,Hændelsesetiket,Al aktivitet,Sessioner,Unikke hændelser,Brugere
+App,Start,App start: TrafikinfoApplication,1.096.598,202.996,202.996,8.774
+Activity,Start,Screen start: TrafikinfoApplication:MainActivity,82.426,27.632,27.632,7.505
+views,entered,Area/MapChange/Trafikmeldinger,1.965,1.230,1.230,319
+views,entered,Area/Custom,704,516,516,178
+views,entered,Area/MapChange/Vejarbejder,136,94,94,52
+views,entered,Area/MapChange/Webkamera,120,54,54,29
+views,entered,Area/,40,32,32,27
+views,entered,Feedback,5,5,5,4

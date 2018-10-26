@@ -15,7 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import controller.Controller;
 import dataTransferObjects.AnalyticsDTO;
-import dataTransferObjects.SheetDTO;
+import dataTransferObjects.FileDTO;
 import exceptions.NoMatchingIdentifiersException;
 
 public class ExcelController {
@@ -41,9 +41,9 @@ public class ExcelController {
 
 	private int highestRowIndex = 0;
 	private int highestColumnIndex = 0;
-	
+
 	private String[] calculationHeaders = {"Antal klik på etiket/antal sessioner","Antal klik på etiket/antal brugere","Antal unikke klik på etiket/antal brugere"};
-	
+
 
 
 	public ExcelController() throws EncryptedDocumentException, InvalidFormatException, IOException {
@@ -59,12 +59,20 @@ public class ExcelController {
 		int rowReached = 0;
 		//Insert the headers
 		Row headerRow = sheet.createRow(rowReached);
-		headerRow.createCell(0).setCellValue("Fil navn");
-		for(int i = 0;i<data.getCategoryList().size();i++) {
-			headerRow.createCell(i+1).setCellValue(data.getCategoryList().get(i));
+		
+		int pushHeaders = 0;
+		if(data.getFileList().get(0).getDirectoryName() != null) {
+			headerRow.createCell(0).setCellValue("Type");
+			pushHeaders = 1;
 		}
 		
-		for(int i = 1;i<=3;i++) {
+		
+		headerRow.createCell(0+pushHeaders).setCellValue("Fil navn");
+		for(int i = 0;i<data.getCategoryList().size();i++) {
+			headerRow.createCell(i+1+pushHeaders).setCellValue(data.getCategoryList().get(i));
+		}
+
+		for(int i = 1+pushHeaders;i<this.calculationHeaders.length+pushHeaders;i++) {
 			headerRow.createCell(data.getCategoryList().size()+i).setCellValue(this.calculationHeaders[i-1]);
 		}
 		rowReached++;
@@ -74,19 +82,29 @@ public class ExcelController {
 		int columnIndex = 0;
 		String[] addresses = new String[7];
 		boolean skipRow = false;
-		for(int i = 0;i<data.getSheetList().size();i++) {
-			for(int rowIndex = 0;rowIndex<data.getSheetList().get(i).getNumberOfRows();rowIndex++) {
+		for(int i = 0;i<data.getFileList().size();i++) {
+			for(int rowIndex = 0;rowIndex<data.getFileList().get(i).getNumberOfRows();rowIndex++) {
+
 				row = sheet.createRow(rowReached);
-				row.createCell(columnIndex).setCellValue(data.getSheetList().get(i).getSheetName());
+				if(data.getFileList().get(i).getDirectoryName() != null) {
+					row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getDirectoryName());
+					columnIndex++;
+				}
+				row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getFileName());
 				columnIndex++;
 
 				for(int index = 0;index<data.getCategoryList().size();index++) {
+
 					String key = data.getColumnNameList().get(rowIndex);
 					String cellValue = null;
 					try {
-						cellValue = data.getSheetList().get(i).getRow(key).get(index);
+						cellValue = data.getFileList().get(i).getRow(key).get(index);
 					}
 					catch(NullPointerException e) {
+						//Delete the inserted values for the directory and file name
+						row.getCell(0).setCellValue("");
+						row.getCell(1).setCellValue("");
+
 						rowReached--;
 						skipRow = true;
 						break;
@@ -135,7 +153,7 @@ public class ExcelController {
 		this.highestRowIndex = rowReached;
 		//this.endAddress = getEndAddress(sheet);
 		System.out.println("EndAddress: " + this.endAddress);
-		
+
 	}
 
 	private String getEndAddress(Sheet sheet) {
@@ -154,8 +172,8 @@ public class ExcelController {
 			this.highestColumnIndex = index;
 		}
 	}
-	
-	
+
+
 
 	private String calculateFormula(AnalyticsDTO.calculationsTypes type, AnalyticsDTO data, String[] addresses) {	
 		String formula = null;
@@ -172,6 +190,9 @@ public class ExcelController {
 		default:
 			break;
 
+		}
+		if(formula == null) {
+			System.out.println("s");
 		}
 		return formula;
 
@@ -194,13 +215,13 @@ public class ExcelController {
 		int numOfCategories = data.getCategoryList().size()-1;
 
 		//Insert the names of the files. Split apart by the number of categories. 
-		for(int i = 0;i<data.getSheetList().size();i++) {
+		for(int i = 0;i<data.getFileList().size();i++) {
 			int index = i*(numOfCategories)+1;
-			headerrow.createCell(index).setCellValue(data.getSheetList().get(i).getSheetName());
+			headerrow.createCell(index).setCellValue(data.getFileList().get(i).getFileName());
 		}
 		//Insert the categories
 		Row subRow = sheet.createRow(1);
-		for(int i = 0;i<data.getSheetList().size();i++) {
+		for(int i = 0;i<data.getFileList().size();i++) {
 			int index = i*(numOfCategories)+1;
 			for(int j = 1;j<=numOfCategories;j++) {
 				subRow.createCell(index+j-1).setCellValue(data.getCategoryList().get(j));
@@ -216,7 +237,7 @@ public class ExcelController {
 		int columnIndex = 0;
 
 		//Sheet values
-		SheetDTO currentSheet = null;
+		FileDTO currentSheet = null;
 		ArrayList<String> row = null;
 
 
@@ -246,12 +267,12 @@ public class ExcelController {
 
 			dataRow.createCell(0).setCellValue(eventName);
 
-			for(int j = 0;j<data.getSheetList().size();j++) {
+			for(int j = 0;j<data.getFileList().size();j++) {
 
 				//Calculate the current column
 				columnIndex = j*(numOfCategories)+this.dataColumnStart;
 				//Get the current sheet
-				currentSheet = data.getSheetList().get(j);
+				currentSheet = data.getFileList().get(j);
 				if(currentSheet.contains(eventName)) { 
 					row = currentSheet.getRow(eventName);
 					for(int n = 0;n<row.size()-1;n++) {
@@ -327,7 +348,7 @@ public class ExcelController {
 		int columnIndex = 0;
 
 		//Sheet values
-		SheetDTO currentSheet = null;
+		FileDTO currentSheet = null;
 		ArrayList<String> row = null;
 
 
@@ -357,12 +378,12 @@ public class ExcelController {
 
 			dataRow.createCell(0).setCellValue(eventName);
 
-			for(int j = 0;j<data.getSheetList().size();j++) {
+			for(int j = 0;j<data.getFileList().size();j++) {
 
 				//Calculate the current column
 				columnIndex = j*(shiftBy)+this.dataColumnStart;
 				//Get the current sheet
-				currentSheet = data.getSheetList().get(j);
+				currentSheet = data.getFileList().get(j);
 				if(currentSheet.contains(eventName)) { 
 					row = currentSheet.getRow(eventName);
 
@@ -431,16 +452,16 @@ public class ExcelController {
 		int offset = (1+sortBySessions + sortByUsers);
 
 		//Insert the names of the files. Split apart by the number of categories.
-		for(int i = 0;i<generalData.getSheetList().size();i++) {
+		for(int i = 0;i<generalData.getFileList().size();i++) {
 			int categoryIndex = 1 + i*numOfCategories*2;
-			headerrow.createCell(categoryIndex).setCellValue(generalData.getSheetList().get(i).getSheetName());
+			headerrow.createCell(categoryIndex).setCellValue(generalData.getFileList().get(i).getFileName());
 
 		}
 
 
 		//Insert the categories
 		Row subRow = sheet.createRow(1);
-		for(int i = 0;i<generalData.getSheetList().size();i++) {
+		for(int i = 0;i<generalData.getFileList().size();i++) {
 			//Calculate the correct column
 
 			int index = i*(numOfCategories*2)+1;
@@ -464,7 +485,7 @@ public class ExcelController {
 		int columnIndex = 0;
 
 		//Sheet values
-		SheetDTO currentSheet = null;
+		FileDTO currentSheet = null;
 		ArrayList<String> row = null;
 
 
@@ -495,14 +516,14 @@ public class ExcelController {
 			dataRow.createCell(0).setCellValue(eventName);
 
 			//Iterate through the files to sort
-			for(int j = 0;j<generalData.getSheetList().size();j++) {
+			for(int j = 0;j<generalData.getFileList().size();j++) {
 
 				//Calculate the current column
 				columnIndex = j*(numOfCategories)*2+this.dataColumnStart;
 
 				//Get the current sheet
-				currentSheet = generalData.getSheetList().get(j);
-				String fileName = currentSheet.getSheetName();
+				currentSheet = generalData.getFileList().get(j);
+				String fileName = currentSheet.getFileName();
 				int identifierEnd = fileName.indexOf("#");
 				String fileIdentifier = fileName.substring(0,identifierEnd);
 
@@ -524,14 +545,14 @@ public class ExcelController {
 							String stringValue = row.get(rowIndex+1);
 							String sessionValue = null;
 							String userValue = null;
-							System.out.println("size: " + sessionData.getSheetList().size());
-							for(int sheetIndex = 0;sheetIndex < sessionData.getSheetList().size();sheetIndex++) {
+							System.out.println("size: " + sessionData.getFileList().size());
+							for(int sheetIndex = 0;sheetIndex < sessionData.getFileList().size();sheetIndex++) {
 								System.out.println("SheetIndex: " + sheetIndex);
-								if(sessionData.getSheetList().get(sheetIndex).getSheetName().startsWith(fileIdentifier)) {
-									sessionValue = sessionData.getSheetList().get(sheetIndex).getRow("0000").get(1);
+								if(sessionData.getFileList().get(sheetIndex).getFileName().startsWith(fileIdentifier)) {
+									sessionValue = sessionData.getFileList().get(sheetIndex).getRow("0000").get(1);
 								}
-								if(userData.getSheetList().get(sheetIndex).getSheetName().startsWith(fileIdentifier)) {
-									userValue = userData.getSheetList().get(sheetIndex).getRow("0000").get(1);
+								if(userData.getFileList().get(sheetIndex).getFileName().startsWith(fileIdentifier)) {
+									userValue = userData.getFileList().get(sheetIndex).getRow("0000").get(1);
 								}
 							}
 							if(sessionValue == null || userValue == null) {
