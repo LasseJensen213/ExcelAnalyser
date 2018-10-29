@@ -3,8 +3,6 @@ package controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.poi.EncryptedDocumentException;
@@ -12,8 +10,8 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import csv.CSVReader;
 import dataTransferObjects.AnalyticsDTO;
-import dataTransferObjects.FileInformationDTO;
 import dataTransferObjects.FileDTO;
+import dataTransferObjects.FileInformationDTO;
 import excel.ExcelController;
 import exceptions.IncorrectDirectoryException;
 import filePathReader.FilePathReader;
@@ -26,7 +24,6 @@ public class Controller {
 	private final String folderPrefix = "./files/";
 
 
-	private Map<String,AnalyticsDTO> data;
 	public static final String activeUsersKey = "activeUsersData";
 	public static final String generalDataKey = "generalData";
 	public static final String sessionsKey = "sessionData";
@@ -36,6 +33,8 @@ public class Controller {
 
 	//ExcelController
 	private ExcelController excelController;
+	
+	//ArrayList containing all of the analyticsDTO's
 
 
 
@@ -43,7 +42,6 @@ public class Controller {
 	public Controller() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		csvReader = new CSVReader();
 		excelController = new ExcelController();
-		data = new HashMap<String, AnalyticsDTO>();
 
 
 	}
@@ -74,6 +72,7 @@ public class Controller {
 		if(pathReader.isFolder()) {
 			//All folders
 			for(FileInformationDTO path : pathReader.getFileNames()) {
+				
 				String finalPath = folderPrefix + path.getFolder() + "/" + path.getName();
 				String fileName = path.getName().replace(".csv", "");
 				csvReader.readCSVFile(fileName,path.getFolder(), finalPath, generalData);
@@ -93,7 +92,6 @@ public class Controller {
 			}
 		}
 
-		System.out.println("EndBreakPoint");
 
 
 		//We have the data. Fill it into the excel file. 
@@ -147,6 +145,8 @@ public class Controller {
 		boolean[] rowBoolean = new boolean[row.length];	//if int true, if string false
 		boolean rowChanged = false;
 
+	
+		ArrayList<String> dataRow = null;
 
 
 		//Run through all of the files
@@ -163,25 +163,31 @@ public class Controller {
 
 			//Run through all of the events
 			for(String event : data.getColumnNameList()) {
-				//Run through all of the directories
+								//Run through all of the directories
 				for(String directory : data.getDirectoryNameList()) {
 					for(FileDTO dto : data.getFileList()) {
 
-						if(dto.getDirectoryName() == directory && dto.getFileName() == fileName) {
+						if(dto.getDirectoryName().equals(directory) && dto.getFileName().equals(fileName)) {
+							if(event.contains("MAP:SELECT:Vej")) {
+								System.out.println(event);
+							}
 
-							if(dto.getRow(event) != null) {
+							
+							dataRow = dto.getRow(event);
+							if(dataRow != null) {
 								rowChanged = true;
 
 
-								for(int i = 0;i<dto.getRow(event).size();i++) {
-									try {
+								for(int i = 0;i<dataRow.size();i++) {
+									if(!Character.isLetter(dataRow.get(i).charAt(0)) && Character.isDigit(dataRow.get(i).charAt(0))) {
 										rowBoolean[i] = true;
-										row[i] += Integer.parseInt(dto.getRow(event).get(i));
+										row[i] += Integer.parseInt(dataRow.get(i));
 									}
-									catch(NumberFormatException e) {
-										rowBoolean[i] = false;
-										rowString[i] = dto.getRow(event).get(i);
+									else {
+						
+										rowString[i] = dataRow.get(i);
 									}
+									
 								}
 							}
 
@@ -189,7 +195,6 @@ public class Controller {
 
 					}
 
-					System.out.println("");
 
 				}
 
@@ -206,6 +211,8 @@ public class Controller {
 					rowString = new String[row.length];
 				}
 			}
+			
+			entry.setKeys((ArrayList<String>) data.getColumnNameList());
 			returnDTO.addFile(entry);
 
 		}

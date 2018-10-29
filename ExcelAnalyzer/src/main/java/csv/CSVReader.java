@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import dataTransferObjects.AnalyticsDTO;
-import dataTransferObjects.RowElementDTO;
 import dataTransferObjects.FileDTO;
 
 public class CSVReader {
@@ -30,9 +29,10 @@ public class CSVReader {
 	 * 
 	 */
 	public void readCSVFile(String fileName, String directoryName, String finalPath, AnalyticsDTO analyticsDTO) {
+		
 		//Create a new sheetDTO with the fileName
 		analyticsDTO.addDirectory(directoryName);
-		FileDTO sheet = new FileDTO(fileName,directoryName);
+		FileDTO csvFile = new FileDTO(fileName,directoryName);
 
 		try {
 			//Create the reader
@@ -43,11 +43,11 @@ public class CSVReader {
 			while ((line = reader.readLine()) != null) {
 				//System.out.println(line);
 				//# Means comment
-
 				//Check if the line is a comment or if it is empty. 
 				if(line.isEmpty() || line.charAt(0) == commentChar) {
 					continue;
 				}
+				
 
 				//Check for "". If it has "" consider the text between "" as a part. 
 
@@ -71,23 +71,28 @@ public class CSVReader {
 					if(row[i].contains(";")) {
 						row[i] = row[i].replace(";", ",");
 						row[i] = row[i].replaceAll("\"", "");
-						
-					}
-					
-				}
-				for(int i = 3;i<row.length;i++) {
-					if(row[i].contains(".")) {
-						row[i] = row[i].replace(".", "");
 
+					}
+
+				}
+				//If the value is an integer, change the dot to a comma
+				for(int i = 0;i<row.length;i++) {				
+					if(!Character.isLetter(row[i].charAt(0))) {
+
+
+						if(row[i].contains(".")) {
+							row[i] = row[i].replace(".", "");
+
+						}
 					}
 				}
 				//Add the categories
 				if(!firstLineReached) {
 					for(String input : row) {
-						if(input.contains("æ")) {
-							input.replace("æ", "�");
-						}
-						
+//						if(input.contains("æ")) {
+//							input.replace("æ", "æ");
+//						}
+
 						if(!analyticsDTO.categoryKnown(input)) {
 							analyticsDTO.addCategory(input);
 						}
@@ -108,18 +113,18 @@ public class CSVReader {
 				}
 
 				ArrayList<String> rowValues = new ArrayList<String>();
-				
+
 				//Run through values in the row.
 				for(String rowValue : row) {
-					
+
 					rowValues.add(rowValue);
 
 				}
-				sheet.addRow(eventName, rowValues);
+				csvFile.addRow(eventName, rowValues);
 
 			}
 			//We know have all the rows - Add the sheet to the analyticsDTO
-			analyticsDTO.addFile(sheet);
+			analyticsDTO.addFile(csvFile);
 
 
 
@@ -137,9 +142,10 @@ public class CSVReader {
 				}
 			}
 		}
+	
 	}
 
 
-	
-	
+
+
 }

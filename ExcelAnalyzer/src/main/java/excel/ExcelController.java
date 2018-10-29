@@ -3,53 +3,39 @@ package excel;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import controller.Controller;
 import dataTransferObjects.AnalyticsDTO;
 import dataTransferObjects.FileDTO;
-import exceptions.NoMatchingIdentifiersException;
 
 public class ExcelController {
 
 
 	private XSSFWorkbook workbook;
-	private final String controlSheetName = "totalData";
-	private final String menuSheetName = "AppMenu";
-	private AnalyticsDTO data;
 
 	private final String path = "./Google Analytics.xlsx";
 
 
-	//Header values
-	private final String eventHeader = "HÃ¦ndelsesnavn";
 
 
 	private final int dataRowStart = 2;
 	private final int dataColumnStart = 1;
 
-	private String startAddress = "A1"; 
-	private String endAddress;
 
-	private int highestRowIndex = 0;
-	private int highestColumnIndex = 0;
 
-	private String[] calculationHeaders = {"Antal klik på etiket/antal sessioner","Antal klik på etiket/antal brugere","Antal unikke klik på etiket/antal brugere"};
+	private String[] calculationHeaders = {"Antal klik pÃ¥ etiket/antal sessioner","Antal klik pÃ¥ etiket/antal brugere"};
 
 
 
 	public ExcelController() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		//Initialize excel ark		
 		workbook = new XSSFWorkbook();
-		data = new AnalyticsDTO();
 	}
 
 
@@ -59,14 +45,14 @@ public class ExcelController {
 		int rowReached = 0;
 		//Insert the headers
 		Row headerRow = sheet.createRow(rowReached);
-		
+
 		int pushHeaders = 0;
 		if(data.getFileList().get(0).getDirectoryName() != null) {
 			headerRow.createCell(0).setCellValue("Type");
 			pushHeaders = 1;
 		}
-		
-		
+
+
 		headerRow.createCell(0+pushHeaders).setCellValue("Fil navn");
 		for(int i = 0;i<data.getCategoryList().size();i++) {
 			headerRow.createCell(i+1+pushHeaders).setCellValue(data.getCategoryList().get(i));
@@ -82,20 +68,33 @@ public class ExcelController {
 		int columnIndex = 0;
 		String[] addresses = new String[7];
 		boolean skipRow = false;
-		for(int i = 0;i<data.getFileList().size();i++) {
-			for(int rowIndex = 0;rowIndex<data.getFileList().get(i).getNumberOfRows();rowIndex++) {
 
+		//Create variables for frequently used values
+		int dataFileListSize = data.getFileList().size();	
+		int fileNumberOfRows = 0;
+		int dataCategoryListSize = data.getCategoryList().size();
+
+		
+		//Run through all of the files
+		for(int i = 0;i<dataFileListSize;i++) {
+			
+			//Run through all of the rows
+			fileNumberOfRows = data.getFileList().get(i).getNumberOfRows();
+			for(int rowIndex = 0;rowIndex<fileNumberOfRows;rowIndex++) {
+
+				//If it's in a folder system, add the folder name
 				row = sheet.createRow(rowReached);
 				if(data.getFileList().get(i).getDirectoryName() != null) {
 					row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getDirectoryName());
 					columnIndex++;
 				}
+				
 				row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getFileName());
 				columnIndex++;
 
-				for(int index = 0;index<data.getCategoryList().size();index++) {
+				for(int index = 0;index<dataCategoryListSize;index++) {
 
-					String key = data.getColumnNameList().get(rowIndex);
+					String key = data.getFileList().get(i).getKeys().get(rowIndex);
 					String cellValue = null;
 					try {
 						cellValue = data.getFileList().get(i).getRow(key).get(index);
@@ -111,21 +110,15 @@ public class ExcelController {
 						//e.printStackTrace();
 
 					}
-					if(index > 2) {
-						if(cellValue == null) {
+					if(cellValue != null && Character.isDigit(cellValue.charAt(0))) {
 
-						}
-						else {
-							row.createCell(columnIndex).setCellValue(Integer.parseInt(cellValue));
-						}
+						row.createCell(columnIndex).setCellValue(Integer.parseInt(cellValue));
+
 					}
 					else {
-						if(cellValue == null) {
 
-						}
-						else {
-							row.createCell(columnIndex).setCellValue(cellValue);
-						}
+						row.createCell(columnIndex).setCellValue(cellValue);
+
 
 					}
 					addresses[index] = row.getCell(columnIndex).getAddress().formatAsString();
@@ -143,35 +136,17 @@ public class ExcelController {
 					skipRow = false;
 
 				}
-				setHighestColumnIndex(columnIndex);
 				columnIndex = 0;
 
 
 				rowReached++;
 			}
 		}
-		this.highestRowIndex = rowReached;
 		//this.endAddress = getEndAddress(sheet);
-		System.out.println("EndAddress: " + this.endAddress);
 
 	}
 
-	private String getEndAddress(Sheet sheet) {
-		Row endRow = sheet.getRow(this.highestRowIndex);
-		if(endRow == null) {
-			endRow = sheet.getRow(highestRowIndex-1);
-		}
-		Cell endCell = endRow.getCell(this.highestColumnIndex);
-		if(endCell == null) {
-			endCell = endRow.getCell(this.highestColumnIndex-1);
-		}
-		return endCell.getAddress().formatAsString();
-	}
-	private void setHighestColumnIndex(int index) {
-		if(this.highestColumnIndex < index) {
-			this.highestColumnIndex = index;
-		}
-	}
+	
 
 
 
@@ -184,16 +159,12 @@ public class ExcelController {
 		case CLICKS_PER_LABEL_PER_USERS:
 			formula = addresses[data.getAllActivityIndex()] + "/" + addresses[data.getUsersIndex()];
 			break;
-		case UNIQUE_CLICKS_PER_LABEL_PER_USERS:
-			formula = addresses[data.getUniqueEventsIndex()] + "/" + addresses[data.getUsersIndex()];
-			break;
+		
 		default:
 			break;
 
 		}
-		if(formula == null) {
-			System.out.println("s");
-		}
+		
 		return formula;
 
 
@@ -420,277 +391,6 @@ public class ExcelController {
 	}
 
 
-
-
-
-	/**
-	 * Sorts the data by percentage
-	 * @param type
-	 * @param data
-	 * @throws NoMatchingIdentifiersException 
-	 */
-	public void sortDataByPercentage(String type, Map<String,AnalyticsDTO> data) throws NoMatchingIdentifiersException {
-		//Create the sheet containing all the data.
-		String namePrefix = "Percentage - ";
-		Sheet sheet = workbook.createSheet(namePrefix + type);
-
-		//Get the data from the map
-		AnalyticsDTO generalData = data.get(Controller.generalDataKey);
-		AnalyticsDTO sessionData = data.get(Controller.sessionsKey);		
-		AnalyticsDTO userData = data.get(Controller.activeUsersKey);
-
-
-		//Create the headerrow
-		Row headerrow = sheet.createRow(0);
-		headerrow.createCell(0).setCellValue(generalData.getCategoryList().get(0));
-
-		//How many categories are we working with
-		int sortBySessions = generalData.getConfigDTO().isSessionDataPresent() ? 1:0;
-		int sortByUsers = generalData.getConfigDTO().isUserDataPresent() ? 1:0;
-
-		int numOfCategories = (generalData.getCategoryList().size()-1)/2;
-		int offset = (1+sortBySessions + sortByUsers);
-
-		//Insert the names of the files. Split apart by the number of categories.
-		for(int i = 0;i<generalData.getFileList().size();i++) {
-			int categoryIndex = 1 + i*numOfCategories*2;
-			headerrow.createCell(categoryIndex).setCellValue(generalData.getFileList().get(i).getFileName());
-
-		}
-
-
-		//Insert the categories
-		Row subRow = sheet.createRow(1);
-		for(int i = 0;i<generalData.getFileList().size();i++) {
-			//Calculate the correct column
-
-			int index = i*(numOfCategories*2)+1;
-
-
-			//We only want all activity and unique event. stuff here. 
-			int categoryIndex = 1;
-			for(int j = 1;j<=numOfCategories*2;j+=2) {
-				subRow.createCell(index+j-1).setCellValue(generalData.getCategoryList().get(categoryIndex));
-				subRow.createCell(index+j-1+1).setCellValue("Procent");
-				categoryIndex++;
-			}
-
-		}
-
-
-		//Headers have been created. Insert the data.
-		String eventName = null;
-		Row dataRow = null;
-		int rowIndex = 0;
-		int columnIndex = 0;
-
-		//Sheet values
-		FileDTO currentSheet = null;
-		ArrayList<String> row = null;
-
-
-		int index = 0;
-		for(int i = 0;i<generalData.getColumnNameList().size();i++) {
-
-			//Get the event name for the row. 
-			eventName = generalData.getColumnNameList().get(i);
-
-			//General sorting.
-			//If event is something we don't want, we skip the data element. 
-			if(!eventName.toLowerCase().startsWith(type.toLowerCase())) {
-				if(eventName.startsWith(type.toUpperCase()))
-					//System.out.println("Type: " + type + " EventName: " + eventName);
-					//Check to see if we want all the data. If not. We skip the data element
-					continue;
-				if(!type.equals(SortType.TOTAL.toString())) {
-					continue;
-				}
-			}
-
-			//Calculate the correct row
-			rowIndex = index+this.dataRowStart;
-
-			//Create the row
-			dataRow = sheet.createRow(rowIndex);
-
-			dataRow.createCell(0).setCellValue(eventName);
-
-			//Iterate through the files to sort
-			for(int j = 0;j<generalData.getFileList().size();j++) {
-
-				//Calculate the current column
-				columnIndex = j*(numOfCategories)*2+this.dataColumnStart;
-
-				//Get the current sheet
-				currentSheet = generalData.getFileList().get(j);
-				String fileName = currentSheet.getFileName();
-				int identifierEnd = fileName.indexOf("#");
-				String fileIdentifier = fileName.substring(0,identifierEnd);
-
-				if(currentSheet.contains(eventName)) { 
-					row = currentSheet.getRow(eventName);
-					//Remove any excess information we don't want. 
-					if(row.size()>3) {
-						row.remove(4);																					//Hardcoded
-						row.remove(3);
-					}
-					//We only want half of the data
-					rowIndex = 0;
-					int insertDataIndex = 0;
-					for(int n = 0;n<row.size()-1;n++) {
-						insertDataIndex = n*2;
-						//System.out.println(row.size()-1);
-						//System.out.println("Value: " + row.get(n));
-						try {
-							String stringValue = row.get(rowIndex+1);
-							String sessionValue = null;
-							String userValue = null;
-							System.out.println("size: " + sessionData.getFileList().size());
-							for(int sheetIndex = 0;sheetIndex < sessionData.getFileList().size();sheetIndex++) {
-								System.out.println("SheetIndex: " + sheetIndex);
-								if(sessionData.getFileList().get(sheetIndex).getFileName().startsWith(fileIdentifier)) {
-									sessionValue = sessionData.getFileList().get(sheetIndex).getRow("0000").get(1);
-								}
-								if(userData.getFileList().get(sheetIndex).getFileName().startsWith(fileIdentifier)) {
-									userValue = userData.getFileList().get(sheetIndex).getRow("0000").get(1);
-								}
-							}
-							if(sessionValue == null || userValue == null) {
-								throw new NoMatchingIdentifiersException("No matching identifiers found for " + fileIdentifier);
-							}
-
-							if(stringValue.contains(".")) {
-								stringValue = stringValue.replace(".", "");
-							}
-							if(sessionValue.contains(".")) {
-								sessionValue = sessionValue.replace(".", "");
-							}
-							if(userValue.contains(".")) {
-								userValue = userValue.replace(".", "");
-							}
-							double value = (double) Integer.parseInt(stringValue);
-							double sessionTotal = (double) Integer.parseInt(sessionValue);
-							double userTotal = (double) Integer.parseInt(userValue);
-
-							dataRow.createCell((columnIndex)+insertDataIndex, CellType.NUMERIC).setCellValue(value);
-							double percentage = 0;
-							if(generalData.getCategoryList().get(1).equals("Al aktivitet")) {
-								percentage = value/sessionTotal;
-								System.out.println(percentage);
-							}
-
-							if(generalData.getCategoryList().get(2).equals("Unikke hÃ¦ndelser")) {
-								percentage = value/sessionTotal;
-								System.out.println("percentage");
-							}
-							dataRow.createCell((columnIndex)+insertDataIndex+1,CellType.NUMERIC).setCellValue(percentage);
-							//System.out.println("integer");
-
-						}
-						catch(NumberFormatException e) {
-							//System.out.println("string");
-
-							String value = row.get(n+1);
-							dataRow.createCell(columnIndex+n).setCellValue(value);
-
-						}
-						rowIndex++;
-					}
-
-				}				
-			}
-			index++;
-		}
-
-
-	}
-
-
-
-	//
-	//	public void sortDataByPercentage(String type, AnalyticsDTO data){
-	//		//Create the sheet containing all the data.
-	//		Sheet sheet = workbook.createSheet(type);
-	//
-	//		//Create the headerrow
-	//		Row headerrow = sheet.createRow(0);
-	//		headerrow.createCell(0).setCellValue(this.eventHeader);
-	//
-	//		//Insert the names of the files. Split apart by 2 cells. 
-	//		for(int i = 0;i<data.getSheetNameList().size();i++) {
-	//			int index = i + 1;
-	//			headerrow.createCell(index*2-1).setCellValue(data.getSheetNameList().get(i));
-	//		}
-	//
-	//		Row subRow = sheet.createRow(1);
-	//		for(int i = 0;i<data.getSheetNameList().size()*2;i++) {
-	//			int index = i+1;
-	//			if(index%2 == 0) {
-	//				subRow.createCell(index).setCellValue("Brugere");
-	//			}
-	//			else {
-	//				subRow.createCell(index).setCellValue("Antal");
-	//			}
-	//		}
-	//
-	//
-	//		//Headers have been created. Insert the data.
-	//		String eventName = null;
-	//		Row dataRow = null;
-	//		int rowIndex = 0;
-	//		int columnIndex = 0;
-	//
-	//		//Sheet values
-	//		SheetDTO currentSheet = null;
-	//		RowElementDTO row = null;
-	//		int quantity;
-	//		int users;
-	//
-	//		int index = 0;
-	//		for(int i = 0;i<data.getEventNameList().size();i++) {
-	//
-	//			//Get the event name for the row. 
-	//			eventName = data.getEventNameList().get(i);
-	//
-	//			if(!eventName.contains(type)) {
-	//				if(!type.equals("NONE")) {
-	//					continue;
-	//				}
-	//			}
-	//
-	//			//Calculate the correct row
-	//			rowIndex = index+this.dataRowStart;
-	//
-	//			//Create the row
-	//			dataRow = sheet.createRow(rowIndex);
-	//
-	//			dataRow.createCell(0).setCellValue(eventName);
-	//
-	//			for(int j = 0;j<data.getSheetList().size();j++) {
-	//
-	//				//Calculate the current column
-	//				columnIndex = j*2+this.dataColumnStart;
-	//				System.out.println("asdf");
-	//				System.out.println("Row: " + rowIndex + " ColumnIndex: " + columnIndex);
-	//				//Get the current sheet
-	//				currentSheet = data.getSheetList().get(j);
-	//				if(currentSheet.contains(eventName)) {
-	//					row = currentSheet.getRow(eventName);
-	//					quantity = row.getQuantity();
-	//					users = row.getUsers();
-	//
-	//					dataRow.createCell(columnIndex).setCellValue(quantity);
-	//					dataRow.createCell(columnIndex+1).setCellValue(users);
-	//
-	//				}				
-	//			}
-	//			index++;
-	//		}
-	//
-	//	}
-	//
-	//
-	//
 
 
 

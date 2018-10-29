@@ -7,7 +7,7 @@ public class AnalyticsDTO {
 	
 	private List<String> eventNameList;			//Collective list of events
 	private List<String> sheetNameList;			//Collective list of sheetNames
-	private List<FileDTO> sheetList;			//Collective list of sheets - This is where the data is stored.
+	private List<FileDTO> csvFileList;			//Collective list of sheets - This is where the data is stored.
 	private ConfigDTO configDTO;				//Config data. 
 	private List<String> categoryList;			//Collective list of categories 
 	private List<String> directoryNameList;		//Collective list of directory names
@@ -21,7 +21,7 @@ public class AnalyticsDTO {
 	private final int UniqueEventsIndex = 5;
 	private final int UsersIndex = 6;
 
-	public enum calculationsTypes {CLICKS_PER_LABEL_PER_SESSION, CLICKS_PER_LABEL_PER_USERS,UNIQUE_CLICKS_PER_LABEL_PER_USERS};
+	public enum calculationsTypes {CLICKS_PER_LABEL_PER_SESSION, CLICKS_PER_LABEL_PER_USERS};
 	
 	
 	
@@ -29,7 +29,7 @@ public class AnalyticsDTO {
 	public AnalyticsDTO() {
 		this.eventNameList = new ArrayList<String>();
 		this.sheetNameList = new ArrayList<String>();
-		this.sheetList = new ArrayList<FileDTO>();
+		this.csvFileList = new ArrayList<FileDTO>();
 		this.categoryList = new ArrayList<String>();
 		this.directoryNameList = new ArrayList<String>();
 		
@@ -64,11 +64,11 @@ public class AnalyticsDTO {
 	}
 
 	public List<FileDTO> getFileList() {
-		return sheetList;
+		return csvFileList;
 	}
 
-	public void addFile(FileDTO sheet) {
-		sheetList.add(sheet);
+	public void addFile(FileDTO fileDTO) {
+		csvFileList.add(fileDTO);
 	}
 
 	public ConfigDTO getConfigDTO() {
@@ -80,7 +80,7 @@ public class AnalyticsDTO {
 	}
 
 	/**
-	 * @return The headers. i.e. Hændelsesetiket, brugere.
+	 * @return The headers. i.e. HÃ¦ndelsesetiket, brugere.
 	 */
 	public List<String> getCategoryList() {
 		return categoryList;
