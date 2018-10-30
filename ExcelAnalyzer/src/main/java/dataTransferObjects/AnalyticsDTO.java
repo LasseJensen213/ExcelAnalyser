@@ -18,8 +18,7 @@ public class AnalyticsDTO {
 	private final int eventLabelIndex = 2;
 	private final int AllActivityIndex = 3;
 	private final int SessionsIndex = 4;
-	private final int UniqueEventsIndex = 5;
-	private final int UsersIndex = 6;
+	private final int UsersIndex = 5;
 
 	public enum calculationsTypes {CLICKS_PER_LABEL_PER_SESSION, CLICKS_PER_LABEL_PER_USERS};
 	
@@ -128,9 +127,7 @@ public class AnalyticsDTO {
 		return SessionsIndex;
 	}
 
-	public int getUniqueEventsIndex() {
-		return UniqueEventsIndex;
-	}
+
 
 	public int getUsersIndex() {
 		return UsersIndex;

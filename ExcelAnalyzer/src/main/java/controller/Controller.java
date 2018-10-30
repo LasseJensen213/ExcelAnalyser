@@ -168,9 +168,7 @@ public class Controller {
 					for(FileDTO dto : data.getFileList()) {
 
 						if(dto.getDirectoryName().equals(directory) && dto.getFileName().equals(fileName)) {
-							if(event.contains("MAP:SELECT:Vej")) {
-								System.out.println(event);
-							}
+							
 
 							
 							dataRow = dto.getRow(event);
@@ -180,6 +178,8 @@ public class Controller {
 
 								for(int i = 0;i<dataRow.size();i++) {
 									if(!Character.isLetter(dataRow.get(i).charAt(0)) && Character.isDigit(dataRow.get(i).charAt(0))) {
+										
+
 										rowBoolean[i] = true;
 										row[i] += Integer.parseInt(dataRow.get(i));
 									}

@@ -58,15 +58,15 @@ public class ExcelController {
 			headerRow.createCell(i+1+pushHeaders).setCellValue(data.getCategoryList().get(i));
 		}
 
-		for(int i = 1+pushHeaders;i<this.calculationHeaders.length+pushHeaders;i++) {
-			headerRow.createCell(data.getCategoryList().size()+i).setCellValue(this.calculationHeaders[i-1]);
+		for(int i = 1+pushHeaders;i<this.calculationHeaders.length+pushHeaders+1;i++) {
+			headerRow.createCell(data.getCategoryList().size()+i).setCellValue(this.calculationHeaders[i-1-pushHeaders]);
 		}
 		rowReached++;
 
 		//Iterate through the files
 		Row row;
 		int columnIndex = 0;
-		String[] addresses = new String[7];
+		String[] addresses = new String[data.getCategoryList().size()];
 		boolean skipRow = false;
 
 		//Create variables for frequently used values
@@ -79,7 +79,7 @@ public class ExcelController {
 		for(int i = 0;i<dataFileListSize;i++) {
 			
 			//Run through all of the rows
-			fileNumberOfRows = data.getFileList().get(i).getNumberOfRows();
+			fileNumberOfRows = data.getFileList().get(i).getKeys().size();
 			for(int rowIndex = 0;rowIndex<fileNumberOfRows;rowIndex++) {
 
 				//If it's in a folder system, add the folder name
