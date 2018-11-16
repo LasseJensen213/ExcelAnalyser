@@ -14,7 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import dataTransferObjects.AnalyticsDTO;
 import dataTransferObjects.FileDTO;
 
-public class ExcelController {
+public class ExcelOutputController {
 
 
 	private XSSFWorkbook workbook;
@@ -33,7 +33,7 @@ public class ExcelController {
 
 
 
-	public ExcelController() throws EncryptedDocumentException, InvalidFormatException, IOException {
+	public ExcelOutputController() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		//Initialize excel ark		
 		workbook = new XSSFWorkbook();
 	}

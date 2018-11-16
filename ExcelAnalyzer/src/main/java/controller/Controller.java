@@ -12,7 +12,7 @@ import csv.CSVReader;
 import dataTransferObjects.AnalyticsDTO;
 import dataTransferObjects.FileDTO;
 import dataTransferObjects.FileInformationDTO;
-import excel.ExcelController;
+import excel.ExcelOutputController;
 import exceptions.IncorrectDirectoryException;
 import filePathReader.FilePathReader;
 
@@ -32,7 +32,7 @@ public class Controller {
 	private CSVReader csvReader;
 
 	//ExcelController
-	private ExcelController excelController;
+	private ExcelOutputController excelController;
 	
 	//ArrayList containing all of the analyticsDTO's
 
@@ -41,7 +41,7 @@ public class Controller {
 
 	public Controller() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		csvReader = new CSVReader();
-		excelController = new ExcelController();
+		excelController = new ExcelOutputController();
 
 
 	}

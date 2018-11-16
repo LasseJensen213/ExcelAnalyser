@@ -5,6 +5,8 @@ import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import controller.Controller;
+import excel.ExcelInputController;
+import exceptions.UnknownSettingsVariableNameException;
 
 public class Main {
 
@@ -12,11 +14,27 @@ public class Main {
 		
 		
 		
+		try {
+			ExcelInputController excelInputController = new ExcelInputController();
+			excelInputController.ReadControlDocoument();
+		} catch (EncryptedDocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownSettingsVariableNameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		try {
 			Controller controller = new Controller();
-			controller.analyze();
+			//controller.analyze();
 		
 			System.out.println("Done");
 		} catch (EncryptedDocumentException e1) {
