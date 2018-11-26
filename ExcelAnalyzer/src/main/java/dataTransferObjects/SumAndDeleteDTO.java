@@ -1,6 +1,6 @@
-package globalValues;
+package dataTransferObjects;
 
-public class SumAndDelete {
+public class SumAndDeleteDTO {
 	
 	
 	private String variableToKeep = null;
@@ -10,7 +10,7 @@ public class SumAndDelete {
 	
 	
 	
-	public SumAndDelete(String variableToKeep, String variableToDelete) {
+	public SumAndDeleteDTO(String variableToKeep, String variableToDelete) {
 		super();
 		this.variableToKeep = variableToKeep;
 		this.variableToDelete = variableToDelete;
@@ -32,6 +32,18 @@ public class SumAndDelete {
 	public void setVariableToDelete(String variableToDelete) {
 		this.variableToDelete = variableToDelete;
 	}
+
+
+
+
+
+	@Override
+	public String toString() {
+		return "SumAndDelete [variableToKeep=" + variableToKeep + ", variableToDelete=" + variableToDelete + "]";
+	}
+	
+	
+	
 	
 
 }

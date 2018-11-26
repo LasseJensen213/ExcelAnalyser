@@ -10,18 +10,24 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import csv.CSVReader;
 import dataTransferObjects.AnalyticsDTO;
+import dataTransferObjects.DataModificationDTO;
 import dataTransferObjects.FileDTO;
 import dataTransferObjects.FileInformationDTO;
+import dataTransferObjects.RecurringDataEntry;
+import dataTransferObjects.SettingVariableNamesDTO;
+import excel.ExcelInputController;
 import excel.ExcelOutputController;
 import exceptions.IncorrectDirectoryException;
+import exceptions.UnknownSettingsVariableNameException;
 import filePathReader.FilePathReader;
+import globalValues.GlobalValues;
 
 public class Controller {
 
 
 
 	//Folder values
-	private final String folderPrefix = "./files/";
+	private String folderPrefix = "./%s/";
 
 
 	public static final String activeUsersKey = "activeUsersData";
@@ -34,15 +40,16 @@ public class Controller {
 	//ExcelController
 	private ExcelOutputController excelController;
 	
-	//ArrayList containing all of the analyticsDTO's
-
+	private final String fileType = ".csv";
+	
+	GlobalValues values;
 
 
 
 	public Controller() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		csvReader = new CSVReader();
 		excelController = new ExcelOutputController();
-
+		values = GlobalValues.getInstance();
 
 	}
 
@@ -50,9 +57,42 @@ public class Controller {
 
 	/**
 	 * Main function. 
+	 * @throws IOException 
+	 * @throws InvalidFormatException 
+	 * @throws EncryptedDocumentException 
 	 */
-	public void analyze() {
-
+	public void analyze() throws EncryptedDocumentException, InvalidFormatException, IOException {
+		//Read the control document
+		GlobalValues values = GlobalValues.getInstance();
+		ExcelInputController inputController = new ExcelInputController();
+		DataModificationDTO dataModificationDTO = inputController.readDataModificationDocument();
+		SettingVariableNamesDTO settingVariableNames;
+		try {
+			settingVariableNames = inputController.readSettingsSheet();
+			values.setNameDataFolder(settingVariableNames.getNameDataFolder());
+			values.setNameAndroidFolder(settingVariableNames.getNameAndroidFolder());
+			values.setNameDataSheetFile(settingVariableNames.getNameDataSheetFile());
+			values.setNameIOSFolder(settingVariableNames.getNameIOSFolder());
+			values.setNameOutputExcelFile(settingVariableNames.getNameOutputExcelFile());
+			values.setTypeNameForSumOfVariables(settingVariableNames.getTypeNameForSumAndDelete());
+			
+		} catch (UnknownSettingsVariableNameException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+			Scanner scanner = new Scanner(System.in);
+			System.out.println("Press enter to close");
+			scanner.nextLine();
+			scanner.close();
+			System.exit(0);
+		}
+		this.folderPrefix = String.format(this.folderPrefix, values.getNameDataFolder());
+		
+		ArrayList<RecurringDataEntry> recurringData = inputController.readRecurringDataSheet();
+		
+		
+		
+		
+		
 		//Get the file names and the path. 
 		FilePathReader pathReader = new FilePathReader();
 		try {
@@ -74,7 +114,7 @@ public class Controller {
 			for(FileInformationDTO path : pathReader.getFileNames()) {
 				
 				String finalPath = folderPrefix + path.getFolder() + "/" + path.getName();
-				String fileName = path.getName().replace(".csv", "");
+				String fileName = path.getName().replace(this.fileType, "");
 				csvReader.readCSVFile(fileName,path.getFolder(), finalPath, generalData);
 			}
 			collectAppData(generalData);
@@ -87,7 +127,7 @@ public class Controller {
 			//All files
 			for(FileInformationDTO path : pathReader.getFileNames()) {
 				String finalPath = folderPrefix + path.getName();
-				String fileName = path.getName().replace(".csv", "");
+				String fileName = path.getName().replace(this.fileType, "");
 				csvReader.readCSVFile(fileName,null, finalPath, generalData);
 			}
 		}

@@ -1,8 +1,8 @@
-package globalValues;
+package dataTransferObjects;
 
 import exceptions.UnknownSettingsVariableNameException;
 
-public class SettingVariableNames {
+public class SettingVariableNamesDTO {
 	
 	
 	public enum SettingVariableIdentifiers {
@@ -35,7 +35,7 @@ public class SettingVariableNames {
 	private String nameDataSheetFile = "Data";
 	
 	
-	public SettingVariableNames() {
+	public SettingVariableNamesDTO() {
 		super();
 	}
 

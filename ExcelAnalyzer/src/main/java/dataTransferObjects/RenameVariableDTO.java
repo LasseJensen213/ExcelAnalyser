@@ -1,6 +1,6 @@
-package globalValues;
+package dataTransferObjects;
 
-public class RenameVariable {
+public class RenameVariableDTO {
 	
 	private String originalName = null;
 	private String newName = null;
@@ -9,7 +9,7 @@ public class RenameVariable {
 	
 	
 	
-	public RenameVariable(String originalName, String newName) {
+	public RenameVariableDTO(String originalName, String newName) {
 		super();
 		this.originalName = originalName;
 		this.newName = newName;
@@ -28,6 +28,13 @@ public class RenameVariable {
 	}
 	public void setNewName(String newName) {
 		this.newName = newName;
+	}
+
+
+
+	@Override
+	public String toString() {
+		return "RenameVariable [originalName=" + originalName + ", newName=" + newName + "]";
 	}
 	
 	

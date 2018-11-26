@@ -7,6 +7,7 @@ public class RecurringDataEntry {
 	private String year = null;
 	private String month = null;
 	private HashMap<String, Integer> data; 
+	private String folder = null;
 	public RecurringDataEntry() {
 		data = new HashMap<String, Integer>();
 		// TODO Auto-generated constructor stub
@@ -31,8 +32,16 @@ public class RecurringDataEntry {
 	}
 	
 	
-	public void InsertDataElement(String key, int value) {
-		data.put(key, value);
+	public void InsertDataElement(String key, double value) {
+		data.put(key, (int) value);
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "RecurringDataEntry [year=" + year + ", month=" + month + ", data=" + data + "]";
 	}
 
+	
+	
 }

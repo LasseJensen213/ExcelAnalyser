@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import dataTransferObjects.FileInformationDTO;
 import exceptions.IncorrectDirectoryException;
+import globalValues.GlobalValues;
 
 public class FilePathReader {
 
@@ -15,7 +16,7 @@ public class FilePathReader {
 	private int numberOfFolders = 0;
 	
 	private final String userDirectory;
-	private final String filesFolderPathName = "\\files\\";
+	private String filesFolderPathName = "//%s//";
 	
 	
 
@@ -23,6 +24,8 @@ public class FilePathReader {
 
 	public FilePathReader() {
 		super();
+		GlobalValues values = GlobalValues.getInstance();
+		filesFolderPathName = String.format(filesFolderPathName, values.getNameDataFolder());
 		this.userDirectory = System.getProperty("user.dir");
 		this.fileNames = new  ArrayList<FileInformationDTO>();
 	}

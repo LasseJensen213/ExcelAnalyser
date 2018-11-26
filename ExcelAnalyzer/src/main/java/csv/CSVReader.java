@@ -24,6 +24,9 @@ public class CSVReader {
 
 	private String[] months = {"Januar 2018","Februar 2018","Marts 2018","April 2018", "Maj 2018", "Juni 2018", "Juli 2018", "August 2018", "September 2018"};
 
+	
+	
+	
 
 	/**
 	 * Reads a csv file and saves the information in the analyticsDTO

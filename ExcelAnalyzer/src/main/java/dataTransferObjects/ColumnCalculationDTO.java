@@ -1,6 +1,6 @@
-package globalValues;
+package dataTransferObjects;
 
-public class ColumnCalculation {
+public class ColumnCalculationDTO {
 	
 	private String column1Name = null;
 	private String column2Name = null;
@@ -9,11 +9,8 @@ public class ColumnCalculation {
 	
 	
 	
-	public ColumnCalculation(String column1Name, String column2Name, String operator) {
+	public ColumnCalculationDTO() {
 		super();
-		this.column1Name = column1Name;
-		this.column2Name = column2Name;
-		this.operator = operator;
 	}
 
 
@@ -62,6 +59,14 @@ public class ColumnCalculation {
 
 	public void setColumnHeaderName(String columnHeaderName) {
 		this.columnHeaderName = columnHeaderName;
+	}
+
+
+
+	@Override
+	public String toString() {
+		return "ColumnCalculation [column1Name=" + column1Name + ", column2Name=" + column2Name + ", operator="
+				+ operator + ", columnHeaderName=" + columnHeaderName + "]";
 	}
 	
 	
