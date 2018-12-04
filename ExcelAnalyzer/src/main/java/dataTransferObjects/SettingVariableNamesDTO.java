@@ -6,7 +6,7 @@ public class SettingVariableNamesDTO {
 	
 	
 	public enum SettingVariableIdentifiers {
-		typeNameForSumAndDelete, 
+		typeNameForSumOfVariables, 
 		nameDataFolder,
 		nameAndroidFolder,
 		nameIOSFolder,

@@ -296,7 +296,7 @@ public class ExcelInputController {
 			case nameOutputExcelFile:
 				settingVariableNames.setNameOutputExcelFile(cellValue);
 				break;
-			case typeNameForSumAndDelete:
+			case typeNameForSumOfVariables:
 				settingVariableNames.setTypeNameForSumAndDelete(cellValue);
 				break;
 			default:

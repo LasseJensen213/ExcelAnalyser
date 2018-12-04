@@ -34,7 +34,7 @@ public class Main {
 		
 		try {
 			Controller controller = new Controller();
-			//controller.analyze();
+			controller.analyze();
 		
 			System.out.println("Done");
 		} catch (EncryptedDocumentException e1) {
