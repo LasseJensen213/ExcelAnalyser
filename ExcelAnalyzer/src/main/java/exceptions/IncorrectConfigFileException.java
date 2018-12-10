@@ -1,6 +1,6 @@
 package exceptions;
 
-public class IncorrectConfigFileException extends Exception{
+public class IncorrectConfigFileException extends Exception {
 
 	public IncorrectConfigFileException(String line) {
 		super(line);

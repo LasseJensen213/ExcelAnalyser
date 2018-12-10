@@ -1,11 +1,11 @@
 package exceptions;
 
-public class NoMatchingIdentifiersException extends Exception{
+public class NoMatchingIdentifiersException extends Exception {
 
-	
 	public NoMatchingIdentifiersException(String line) {
 		super(line);
 	}
+
 	/**
 	 * 
 	 */

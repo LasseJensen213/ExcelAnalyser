@@ -8,16 +8,11 @@ public class AnalyticsDTO {
 	private List<String> eventNameList; // Collective list of events
 	private List<String> sheetNameList; // Collective list of sheetNames
 	private List<FileDTO> csvFileList; // Collective list of sheets - This is where the data is stored.
-	private List<String> categoryList; // Collective list of categories	- This is the headers
+	private List<String> categoryList; // Collective list of categories - This is the headers
 	private List<String> directoryNameList; // Collective list of directory names
 
-	
 	// Is app data or web data
 	private boolean multipleFolders = false;
-
-	public enum calculationsTypes {
-		CLICKS_PER_LABEL_PER_SESSION, CLICKS_PER_LABEL_PER_USERS
-	};
 
 	public AnalyticsDTO() {
 		this.eventNameList = new ArrayList<String>();
@@ -61,8 +56,6 @@ public class AnalyticsDTO {
 		csvFileList.add(fileDTO);
 	}
 
-
-
 	/**
 	 * @return The headers. i.e. Hændelsesetiket, brugere.
 	 */
@@ -93,7 +86,6 @@ public class AnalyticsDTO {
 		return directoryNameList;
 	}
 
-	
 	public boolean isMultipleFolders() {
 		return multipleFolders;
 	}
@@ -102,7 +94,4 @@ public class AnalyticsDTO {
 		this.multipleFolders = multipleFolders;
 	}
 
-	
-	
-	
 }

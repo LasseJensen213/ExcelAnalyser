@@ -35,8 +35,7 @@ public class Controller {
 	// CSVReader
 	private CSVReader csvReader;
 
-	// ExcelController
-	private ExcelOutputController excelController;
+	
 
 	private final String fileType = ".csv";
 
@@ -44,7 +43,6 @@ public class Controller {
 
 	public Controller() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		csvReader = new CSVReader();
-		excelController = new ExcelOutputController();
 		values = GlobalValues.getInstance();
 
 	}
@@ -58,8 +56,12 @@ public class Controller {
 	 */
 	public void analyze() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		// Read the control document
+		System.out.println("Indlæser...");
+
 		ExcelInputController inputController = new ExcelInputController();
 		try {
+			System.out.println("Læser kontrol dokument");
+
 			inputController.readControlDocoument();
 		} catch (UnknownSettingsVariableNameException e2) {
 			// TODO Auto-generated catch block
@@ -70,6 +72,7 @@ public class Controller {
 		// Get the file names and the path.
 		FilePathReader pathReader = new FilePathReader();
 		try {
+			System.out.println("Læser fil navne");
 			pathReader.readFileNames();
 		} catch (IncorrectDirectoryException e1) {
 			e1.printStackTrace();
@@ -81,22 +84,31 @@ public class Controller {
 			// TODO Auto-generated catch block
 		}
 
+		System.out.println("Læser .csv filer");
 		AnalyticsDTO generalData = readDataFiles();
-
+		
+		System.out.println("Omdøber hændelsesetiketer");
 		renameDataVariables(generalData);
 
+		System.out.println("Summérer og sletter variable");
 		sumAndDelete(generalData);
 
+		System.out.println("Tilføjer gengående data");
 		addRecurringData(generalData);
 
 		if (generalData.isMultipleFolders()) {
+			System.out.println("Lægger data sammen");
 			collectAppData(generalData);
 		}
 
+		ExcelOutputController excelController = new ExcelOutputController();
+
 		// We have the data. Fill it into the excel file.
 		try {
+			System.out.println("Indsætter data i excel ark");
 			excelController.processData(generalData);
 
+			System.out.println("Gemmer excel ark");
 			excelController.closeWorkbook();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -164,7 +176,7 @@ public class Controller {
 				String row = rows.get(2);
 				for (RenameVariableDTO renameVariable : values.getDataModificationDTO().getRenameVariableList()) {
 					if (row.equals(renameVariable.getOriginalName())) {
-						rows.set(2, renameVariable.getNewName()); 
+						rows.set(2, renameVariable.getNewName());
 					}
 				}
 
@@ -188,9 +200,10 @@ public class Controller {
 					continue;
 				}
 				for (SumAndDeleteDTO sumAndDeleteDTO : values.getDataModificationDTO().getSumAndDeleteList()) {
-					if (key.contains(sumAndDeleteDTO.getVariableToKeep())) {
+					if (key.endsWith(sumAndDeleteDTO.getVariableToKeep())) {
 						for (String deleteKey : data.getKeys()) {
-							if (deleteKey.contains(sumAndDeleteDTO.getVariableToDelete()) && !key.equals(deleteKey)) {
+							if (deleteKey.endsWith(sumAndDeleteDTO.getVariableToDelete()) && !key.equals(deleteKey)) {
+
 								ArrayList<String> sum = addVariables(data.getRow(key), data.getRow(deleteKey));
 								data.deleteRow(deleteKey);
 								data.updateRow(key, sum);
@@ -236,9 +249,8 @@ public class Controller {
 
 	private void addRecurringData(AnalyticsDTO analyticsDTO) {
 		for (FileDTO data : analyticsDTO.getFileList()) {
-			System.out.println("asfd");
-			for (RecurringData recurringData : values.getRecurringData()) {
-				if (recurringData.getFolder().equals(data.getDirectoryName())) {
+			if(data.getDirectoryName() == null) {
+				for (RecurringData recurringData : values.getRecurringData()) {
 					for (RecurringDataEntry entry : recurringData.getRecurringData()) {
 						String entryID = entry.getMonth() + " " + entry.getYear();
 						if (entryID.equals(data.getSheetName())) {
@@ -246,10 +258,13 @@ public class Controller {
 								for (String recurringDataKey : entry.getKeys()) {
 
 									ArrayList<String> rows = data.getRow(key);
-									if(rows == null) {
+									if (rows == null) {
 										continue;
 									}
 									String toBeAdded = entry.getData().get(recurringDataKey).toString();
+									if(toBeAdded == null) {
+										System.out.println("asdf");
+									}
 									rows.add(toBeAdded);
 									if (!analyticsDTO.categoryKnown(recurringDataKey)) {
 										analyticsDTO.addCategory(recurringDataKey);
@@ -259,9 +274,39 @@ public class Controller {
 
 							}
 							break;
+
 						}
+
 					}
-			
+				}
+			}
+			else {
+				for (RecurringData recurringData : values.getRecurringData()) {
+					if (recurringData.getFolder().equals(data.getDirectoryName())) {
+						for (RecurringDataEntry entry : recurringData.getRecurringData()) {
+							String entryID = entry.getMonth() + " " + entry.getYear();
+							if (entryID.equals(data.getSheetName())) {
+								for (String key : data.getKeys()) {
+									for (String recurringDataKey : entry.getKeys()) {
+
+										ArrayList<String> rows = data.getRow(key);
+										if (rows == null) {
+											continue;
+										}
+										String toBeAdded = entry.getData().get(recurringDataKey).toString();
+										rows.add(toBeAdded);
+										if (!analyticsDTO.categoryKnown(recurringDataKey)) {
+											analyticsDTO.addCategory(recurringDataKey);
+										}
+
+									}
+
+								}
+								break;
+							}
+						}
+
+					}
 				}
 			}
 			// if(data.getSheetName().equals(values.getRecurringData().g))
@@ -271,7 +316,7 @@ public class Controller {
 
 	public void collectAppData(AnalyticsDTO data) {
 		AnalyticsDTO returnDTO = new AnalyticsDTO();
-		String finalFolderName = "Total";
+		String finalFolderName = values.getTypeNameForSumOfVariables();
 		ArrayList<String> usedFiles = new ArrayList<String>();
 		FileDTO entry;
 

@@ -51,8 +51,9 @@ public class ExcelInputController {
 	 * Saves all the data into the singleton GlobalValues.
 	 * 
 	 * @throws UnknownSettingsVariableNameException
+	 * @throws IOException 
 	 */
-	public void readControlDocoument() throws UnknownSettingsVariableNameException {
+	public void readControlDocoument() throws UnknownSettingsVariableNameException, IOException {
 
 		// Variables
 		SettingVariableNamesDTO settingVariableNames;
@@ -82,6 +83,7 @@ public class ExcelInputController {
 		this.globalValues.setRecurringData(readRecurringDataSheet());
 		this.globalValues.setDataModificationDTO(readDataModificationDocument());
 
+		workbook.close();
 	}
 
 	/**
@@ -117,7 +119,6 @@ public class ExcelInputController {
 			currentColumn = 0;
 			maxColumn = 0;
 
-			
 			Row row = null;
 			// Read headers and the number of rows that exist.
 			row = recurringDataSheet.getRow(0);
@@ -165,7 +166,7 @@ public class ExcelInputController {
 					}
 
 				}
-				
+
 				recurringDataObject.getRecurringData().add(entry);
 				currentRow++;
 
@@ -282,13 +283,10 @@ public class ExcelInputController {
 		dataModificationDTO.setColumnCalculationList(columnCalculationList);
 		dataModificationDTO.setRenameVariableList(renameVariableList);
 		dataModificationDTO.setSumAndDeleteList(sumAndDeleteList);
-		
-		System.out.println(columnCalculationList);
-		System.out.println(renameVariableList);
-		System.out.println(sumAndDeleteList);
 
 		return dataModificationDTO;
 
+		
 	}
 
 	public SettingVariableNamesDTO readSettingsSheet() throws UnknownSettingsVariableNameException {

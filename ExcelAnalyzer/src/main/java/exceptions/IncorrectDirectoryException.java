@@ -1,7 +1,7 @@
 package exceptions;
 
 public class IncorrectDirectoryException extends Exception {
-	
+
 	public IncorrectDirectoryException(String line) {
 		super(line);
 	}

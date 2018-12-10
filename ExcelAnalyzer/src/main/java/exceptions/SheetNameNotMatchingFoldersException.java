@@ -11,6 +11,4 @@ public class SheetNameNotMatchingFoldersException extends Exception {
 		super(line);
 	}
 
-	
-
 }

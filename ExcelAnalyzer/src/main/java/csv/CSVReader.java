@@ -17,48 +17,44 @@ public class CSVReader {
 	private String csvSplitBy = ",";
 	private char commentChar = '#';
 
-
-
-
-
-
 	/**
 	 * Reads a csv file and saves the information in the analyticsDTO
 	 * 
 	 * 
-	 * @param fileName - String 
-	 * @param finalPath 
-	 * @param analyticsDTO - AnalyticsDTO
+	 * @param fileName
+	 *            - String
+	 * @param finalPath
+	 * @param analyticsDTO
+	 *            - AnalyticsDTO
 	 * 
 	 */
 	public void readCSVFile(String fileName, String directoryName, String finalPath, AnalyticsDTO analyticsDTO) {
 
-		//Create a new sheetDTO with the fileName
+		// Create a new sheetDTO with the fileName
 		analyticsDTO.addDirectory(directoryName);
-		FileDTO csvFile = new FileDTO(fileName,directoryName);
+		FileDTO csvFile = new FileDTO(fileName, directoryName);
 
 		try {
-			//Create the reader
+			// Create the reader
 			reader = new BufferedReader(new FileReader(finalPath));
 
-			//Boolean to check if we've reached the first line. 
+			// Boolean to check if we've reached the first line.
 			boolean firstLineReached = false;
 			while ((line = reader.readLine()) != null) {
-				//System.out.println(line);
-				//# Means comment
-				//Check if the line is a comment or if it is empty. 
-				if(line.isEmpty() || line.charAt(0) == commentChar) {
+				// System.out.println(line);
+				// # Means comment
+				// Check if the line is a comment or if it is empty.
+				if (line.isEmpty() || line.charAt(0) == commentChar) {
 					continue;
 				}
 
+				// Check for "". If it has "" consider the text between "" as a part.
 
-				//Check for "". If it has "" consider the text between "" as a part. 
-
-				if(line.contains("\"")) {
-					//Replace any commas between the "" with a semi colon. 
+				if (line.contains("\"")) {
+					// Replace any commas between the "" with a semi colon.
 
 					int startIndex = line.indexOf("\"");
-					int endIndex = line.lastIndexOf("\"")+1;
+					int endIndex = line.lastIndexOf("\"") + 1;
 
 					String annotatedString = line.substring(startIndex, endIndex);
 					String newAnnotatedString = annotatedString.replace(',', ';');
@@ -66,41 +62,39 @@ public class CSVReader {
 
 				}
 
-				//Split the current line into individual parts
+				// Split the current line into individual parts
 				String[] row = line.split(csvSplitBy);
 
-				//Change the semi colon back to a comma. 
-				for(int i = 0; i< row.length;i++) {
-					if(row[i].contains(";")) {
+				// Change the semi colon back to a comma.
+				for (int i = 0; i < row.length; i++) {
+					if (row[i].contains(";")) {
 						row[i] = row[i].replace(";", ",");
 						row[i] = row[i].replaceAll("\"", "");
 
 					}
 
 				}
-				//If the value is an integer, change the dot to a comma
-				for(int i = 0;i<row.length;i++) {				
-					if(!Character.isLetter(row[i].charAt(0))) {
+				// If the value is an integer, change the dot to a comma
+				for (int i = 0; i < row.length; i++) {
+					if (!Character.isLetter(row[i].charAt(0))) {
 
-
-						if(row[i].contains(".")) {
+						if (row[i].contains(".")) {
 							row[i] = row[i].replace(".", "");
 
 						}
 					}
 				}
-				//Add the categories
+				// Add the categories
 
-				//Hardcoding stuff
+				// Hardcoding stuff
 
+				if (!firstLineReached) {
+					for (String input : row) {
+						// if(input.contains("æ")) {
+						// input.replace("æ", "æ");
+						// }
 
-				if(!firstLineReached) {
-					for(String input : row) {
-						//						if(input.contains("æ")) {
-						//							input.replace("æ", "æ");
-						//						}
-
-						if(!analyticsDTO.categoryKnown(input)) {
+						if (!analyticsDTO.categoryKnown(input)) {
 							analyticsDTO.addCategory(input);
 						}
 					}
@@ -108,45 +102,29 @@ public class CSVReader {
 					continue;
 				}
 
-				//Assign information to variables
+				// Assign information to variables
 				String eventName = row[0] + ";" + row[1] + ";" + row[2];
-				if(eventName.isEmpty()) {
-					break;
-				}
+		
 
-				//if the event name isn't known, add it to the collective list. 
-				if(eventName.contains("MAP;SELECT;MAP:SELECT:Vejarbejde")) {
-					eventName = "MAP;SELECT;MAP:SELECT:Vejarbejde";
-				} else if(eventName.contains("MAP;SELECT;MAP:SELECT:Trafik"))  {
-					eventName = "MAP;SELECT;MAP:SELECT:Trafikinfo";
-
-				}
-				if(!analyticsDTO.eventKnown(eventName)) {
+				// if the event name isn't known, add it to the collective list.
+				if (!analyticsDTO.eventKnown(eventName)) {
 					analyticsDTO.addEventName(eventName);
 				}
 
 				ArrayList<String> rowValues = new ArrayList<String>();
 
-				//Run through values in the row.
-				for(String rowValue : row) {
-					if(rowValue.contains("section_")) {
-						String replacement = rowValue.replace("section_", "section:");
-						rowValues.add(replacement);
-						continue;
-					}
+				// Run through values in the row.
+				for (String rowValue : row) {
+
 					rowValues.add(rowValue);
 
 				}
-				//System.out.println("");
-
+				// System.out.println("");
 
 				csvFile.addRow(eventName, rowValues);
 
 			}
 			analyticsDTO.addFile(csvFile);
-
-
-
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -163,8 +141,5 @@ public class CSVReader {
 		}
 
 	}
-
-
-
 
 }
