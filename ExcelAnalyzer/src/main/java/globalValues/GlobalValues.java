@@ -1,5 +1,10 @@
 package globalValues;
 
+import java.util.ArrayList;
+
+import dataTransferObjects.DataModificationDTO;
+import dataTransferObjects.RecurringData;
+
 public class GlobalValues {
 
 	
@@ -13,6 +18,9 @@ public class GlobalValues {
 	private String nameOutputExcelFile = "Google Analytics";
 	private String nameDataSheetFile = "Data";
 	
+	
+	private ArrayList<RecurringData> recurringData = new ArrayList<RecurringData>();
+	private DataModificationDTO dataModificationDTO = new DataModificationDTO();
 	
 	
 	public static GlobalValues getInstance() 
@@ -72,6 +80,22 @@ public class GlobalValues {
 	}
 	public void setNameDataSheetFile(String nameDataSheetFile) {
 		this.nameDataSheetFile = nameDataSheetFile;
+	}
+
+	public ArrayList<RecurringData> getRecurringData() {
+		return recurringData;
+	}
+
+	public void setRecurringData(ArrayList<RecurringData> recurringData) {
+		this.recurringData = recurringData;
+	}
+
+	public DataModificationDTO getDataModificationDTO() {
+		return dataModificationDTO;
+	}
+
+	public void setDataModificationDTO(DataModificationDTO dataModificationDTO) {
+		this.dataModificationDTO = dataModificationDTO;
 	}
 	
 	

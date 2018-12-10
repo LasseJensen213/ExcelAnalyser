@@ -12,14 +12,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import dataTransferObjects.AnalyticsDTO;
+import dataTransferObjects.ColumnCalculationDTO;
 import dataTransferObjects.FileDTO;
+import globalValues.GlobalValues;
 
 public class ExcelOutputController {
 
 
 	private XSSFWorkbook workbook;
 
-	private final String path = "./Google Analytics.xlsx";
+	private String path = "./%s.xlsx";
 
 
 
@@ -27,21 +29,22 @@ public class ExcelOutputController {
 	private final int dataRowStart = 2;
 	private final int dataColumnStart = 1;
 
+	GlobalValues globalValues;
 
-
-	private String[] calculationHeaders = {"Antal klik på etiket/antal sessioner","Antal klik på etiket/antal brugere"};
-
+	
 
 
 	public ExcelOutputController() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		//Initialize excel ark		
+		globalValues = GlobalValues.getInstance();
 		workbook = new XSSFWorkbook();
+		path = String.format(path, globalValues.getNameOutputExcelFile());
 	}
 
 
 
 	public void processData(AnalyticsDTO data) {
-		Sheet sheet = workbook.createSheet("Title");
+		Sheet sheet = workbook.createSheet(globalValues.getNameDataSheetFile());
 		int rowReached = 0;
 		//Insert the headers
 		Row headerRow = sheet.createRow(rowReached);
@@ -57,10 +60,16 @@ public class ExcelOutputController {
 		for(int i = 0;i<data.getCategoryList().size();i++) {
 			headerRow.createCell(i+1+pushHeaders).setCellValue(data.getCategoryList().get(i));
 		}
-
-		for(int i = 1+pushHeaders;i<this.calculationHeaders.length+pushHeaders+1;i++) {
-			headerRow.createCell(data.getCategoryList().size()+i).setCellValue(this.calculationHeaders[i-1-pushHeaders]);
+		int columnCalculationIndex = 0+pushHeaders+1;
+		for(ColumnCalculationDTO columnCalculationDTO : globalValues.getDataModificationDTO().getColumnCalculationList()) {
+			
+			headerRow.createCell(data.getCategoryList().size()+columnCalculationIndex).setCellValue(columnCalculationDTO.getColumnHeaderName());
+			columnCalculationIndex++;
 		}
+
+//		for(int i = 1+pushHeaders;i<this.calculationHeaders.length+pushHeaders+1;i++) {
+//			headerRow.createCell(data.getCategoryList().size()+i).setCellValue(this.calculationHeaders[i-1-pushHeaders]);
+//		}
 		rowReached++;
 
 		//Iterate through the files
@@ -84,22 +93,24 @@ public class ExcelOutputController {
 
 				//If it's in a folder system, add the folder name
 				row = sheet.createRow(rowReached);
-				if(data.getFileList().get(i).getDirectoryName() != null) {
+				if(data.isMultipleFolders()) {
 					row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getDirectoryName());
 					columnIndex++;
 				}
 				
-				row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getFileName());
+				row.createCell(columnIndex).setCellValue(data.getFileList().get(i).getSheetName());
 				columnIndex++;
 
 				for(int index = 0;index<dataCategoryListSize;index++) {
 
 					String key = data.getFileList().get(i).getKeys().get(rowIndex);
 					String cellValue = null;
-					try {
-						cellValue = data.getFileList().get(i).getRow(key).get(index);
+					
+					ArrayList<String> dataRow = data.getFileList().get(i).getRow(key);
+					if(dataRow != null) {
+						cellValue = dataRow.get(index);
 					}
-					catch(NullPointerException e) {
+					else {
 						//Delete the inserted values for the directory and file name
 						row.getCell(0).setCellValue("");
 						row.getCell(1).setCellValue("");
@@ -107,9 +118,8 @@ public class ExcelOutputController {
 						rowReached--;
 						skipRow = true;
 						break;
-						//e.printStackTrace();
-
 					}
+					
 					if(cellValue != null && Character.isDigit(cellValue.charAt(0))) {
 
 						row.createCell(columnIndex).setCellValue(Integer.parseInt(cellValue));
@@ -126,11 +136,16 @@ public class ExcelOutputController {
 					columnIndex++;
 				}
 				if(!skipRow) {
-
-					for(AnalyticsDTO.calculationsTypes type: AnalyticsDTO.calculationsTypes.values()) {
-						row.createCell(columnIndex).setCellFormula(calculateFormula(type, data, addresses));
+					String formula;
+					for(ColumnCalculationDTO columnCalculationDTO : globalValues.getDataModificationDTO().getColumnCalculationList()) {
+						int index1 = data.getCategoryList().indexOf(columnCalculationDTO.getColumn1Name());
+						int index2 = data.getCategoryList().indexOf(columnCalculationDTO.getColumn2Name());
+						formula = addresses[index1] + columnCalculationDTO.getOperator() + addresses[index2];
+						row.createCell(columnIndex).setCellFormula(formula);
 						columnIndex++;
+
 					}
+					
 				}
 				else {
 					skipRow = false;
@@ -150,25 +165,6 @@ public class ExcelOutputController {
 
 
 
-	private String calculateFormula(AnalyticsDTO.calculationsTypes type, AnalyticsDTO data, String[] addresses) {	
-		String formula = null;
-		switch (type) {
-		case CLICKS_PER_LABEL_PER_SESSION:
-			formula = addresses[data.getAllActivityIndex()] + "/" + addresses[data.getSessionsIndex()];
-			break;
-		case CLICKS_PER_LABEL_PER_USERS:
-			formula = addresses[data.getAllActivityIndex()] + "/" + addresses[data.getUsersIndex()];
-			break;
-		
-		default:
-			break;
-
-		}
-		
-		return formula;
-
-
-	}
 
 
 	/**
@@ -188,7 +184,7 @@ public class ExcelOutputController {
 		//Insert the names of the files. Split apart by the number of categories. 
 		for(int i = 0;i<data.getFileList().size();i++) {
 			int index = i*(numOfCategories)+1;
-			headerrow.createCell(index).setCellValue(data.getFileList().get(i).getFileName());
+			headerrow.createCell(index).setCellValue(data.getFileList().get(i).getSheetName());
 		}
 		//Insert the categories
 		Row subRow = sheet.createRow(1);
@@ -255,7 +251,7 @@ public class ExcelOutputController {
 							if(stringValue.contains(".")) {
 								stringValue = stringValue.replace(".", "");
 							}
-							double value = (double) Integer.parseInt(stringValue);
+							double value = Integer.parseInt(stringValue);
 
 							dataRow.createCell(columnIndex+n, CellType.NUMERIC).setCellValue(value);
 						}
@@ -367,7 +363,7 @@ public class ExcelOutputController {
 						continue;
 					}
 					try {
-						double value = (double) Integer.parseInt(row.get(categoryIndex));
+						double value = Integer.parseInt(row.get(categoryIndex));
 						dataRow.createCell(columnIndex, CellType.NUMERIC).setCellValue(value);
 						//System.out.println("integer");
 

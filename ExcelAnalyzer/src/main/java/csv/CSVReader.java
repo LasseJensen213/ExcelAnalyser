@@ -17,16 +17,10 @@ public class CSVReader {
 	private String csvSplitBy = ",";
 	private char commentChar = '#';
 
-	private String[] androidUsers = {"821","745","803","697","713","678","635","646","681"};
-	private String[] iosUsers = {"1543","1514","1825","1452","1513","1483","1342","1352","1398"};
-	private String[] androidSessions = {"3976","3334","3812","2774","3443","3290","2231","2957","3802"};
-	private String[] iosSessions = {"13071","11226","15920","11481","12468","11678","8044","11427","12382"};
 
-	private String[] months = {"Januar 2018","Februar 2018","Marts 2018","April 2018", "Maj 2018", "Juni 2018", "Juli 2018", "August 2018", "September 2018"};
 
-	
-	
-	
+
+
 
 	/**
 	 * Reads a csv file and saves the information in the analyticsDTO
@@ -38,7 +32,7 @@ public class CSVReader {
 	 * 
 	 */
 	public void readCSVFile(String fileName, String directoryName, String finalPath, AnalyticsDTO analyticsDTO) {
-		
+
 		//Create a new sheetDTO with the fileName
 		analyticsDTO.addDirectory(directoryName);
 		FileDTO csvFile = new FileDTO(fileName,directoryName);
@@ -56,7 +50,7 @@ public class CSVReader {
 				if(line.isEmpty() || line.charAt(0) == commentChar) {
 					continue;
 				}
-				
+
 
 				//Check for "". If it has "" consider the text between "" as a part. 
 
@@ -96,15 +90,15 @@ public class CSVReader {
 					}
 				}
 				//Add the categories
-				
+
 				//Hardcoding stuff
-				
-				
+
+
 				if(!firstLineReached) {
 					for(String input : row) {
-//						if(input.contains("æ")) {
-//							input.replace("æ", "æ");
-//						}
+						//						if(input.contains("æ")) {
+						//							input.replace("æ", "æ");
+						//						}
 
 						if(!analyticsDTO.categoryKnown(input)) {
 							analyticsDTO.addCategory(input);
@@ -144,30 +138,10 @@ public class CSVReader {
 
 				}
 				//System.out.println("");
-				
-				for(int i = 0;i<this.months.length;i++) {
-					if(fileName.contains(this.months[i])) {
-						if(directoryName.equals("Android"))  {
-							rowValues.add(androidUsers[i]);
-							rowValues.add(androidSessions[i]);
-						}
-						else if(directoryName.equals("IOS")) {
-							rowValues.add(iosUsers[i]);
-							rowValues.add(iosSessions[i]);
-						}
-						
-						break;
-					}
-				}
+
+
 				csvFile.addRow(eventName, rowValues);
 
-			}
-			//We know have all the rows - Add the sheet to the analyticsDTO
-			if(!analyticsDTO.categoryKnown("Total - Brugere")) {
-				analyticsDTO.addCategory("Total - Brugere");
-			}
-			if(!analyticsDTO.categoryKnown("Total - Sessioner")) {
-				analyticsDTO.addCategory("Total - Sessioner");
 			}
 			analyticsDTO.addFile(csvFile);
 
@@ -187,7 +161,7 @@ public class CSVReader {
 				}
 			}
 		}
-	
+
 	}
 
 

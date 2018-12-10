@@ -16,7 +16,7 @@ public class Main {
 		
 		try {
 			ExcelInputController excelInputController = new ExcelInputController();
-			excelInputController.ReadControlDocoument();
+			excelInputController.readControlDocoument();
 		} catch (EncryptedDocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
