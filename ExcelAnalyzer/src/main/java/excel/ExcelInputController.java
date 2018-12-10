@@ -51,7 +51,7 @@ public class ExcelInputController {
 	 * Saves all the data into the singleton GlobalValues.
 	 * 
 	 * @throws UnknownSettingsVariableNameException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void readControlDocoument() throws UnknownSettingsVariableNameException, IOException {
 
@@ -102,8 +102,7 @@ public class ExcelInputController {
 
 	public ArrayList<RecurringData> readRecurringDataSheet() {
 		int startRow = 1;
-		int yearColumn = 0;
-		int monthColumn = 1;
+		int fileNameColumn = 0;
 		int maxColumn = 0;
 
 		ArrayList<RecurringData> recurringData = new ArrayList<RecurringData>();
@@ -157,10 +156,8 @@ public class ExcelInputController {
 					if (dataCell == null) {
 						break;
 					}
-					if (i == yearColumn) {
-						entry.setYear(String.valueOf((int) dataCell.getNumericCellValue()));
-					} else if (i == monthColumn) {
-						entry.setMonth(dataCell.getStringCellValue());
+					if (i == fileNameColumn) {
+						entry.setFileName(dataCell.getStringCellValue());
 					} else {
 						entry.InsertDataElement(headers.get(i), dataCell.getNumericCellValue());
 					}
@@ -286,7 +283,6 @@ public class ExcelInputController {
 
 		return dataModificationDTO;
 
-		
 	}
 
 	public SettingVariableNamesDTO readSettingsSheet() throws UnknownSettingsVariableNameException {

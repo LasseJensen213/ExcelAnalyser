@@ -52,10 +52,13 @@ public class FileDTO {
 
 	public void updateRow(String key, ArrayList<String> rows) {
 		this.rows.put(key, rows);
-	}
+ 	}
 
 	public void deleteRow(String key) {
 		this.rows.remove(key);
+	}
+	public void removeKey(String key) {
+		this.keys.remove(key);
 	}
 
 	public String getDirectoryName() {

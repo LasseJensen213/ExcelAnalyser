@@ -1,9 +1,10 @@
 package csv;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import dataTransferObjects.AnalyticsDTO;
@@ -36,7 +37,8 @@ public class CSVReader {
 
 		try {
 			// Create the reader
-			reader = new BufferedReader(new FileReader(finalPath));
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(
+					finalPath), "UTF-8"));
 
 			// Boolean to check if we've reached the first line.
 			boolean firstLineReached = false;

@@ -35,7 +35,7 @@ public class Controller {
 	// CSVReader
 	private CSVReader csvReader;
 
-	
+
 
 	private final String fileType = ".csv";
 
@@ -86,12 +86,12 @@ public class Controller {
 
 		System.out.println("Læser .csv filer");
 		AnalyticsDTO generalData = readDataFiles();
-		
+
 		System.out.println("Omdøber hændelsesetiketer");
 		renameDataVariables(generalData);
 
 		System.out.println("Summérer og sletter variable");
-		sumAndDelete(generalData);
+		generalData = sumAndDelete(generalData);
 
 		System.out.println("Tilføjer gengående data");
 		addRecurringData(generalData);
@@ -170,9 +170,13 @@ public class Controller {
 	 * @param analyticsDTO
 	 */
 	private void renameDataVariables(AnalyticsDTO analyticsDTO) {
-		for (FileDTO data : analyticsDTO.getFileList()) {
+		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+			FileDTO data = analyticsDTO.getFileList().get(i);
 			for (String key : data.getKeys()) {
 				ArrayList<String> rows = data.getRow(key);
+				if(rows == null) {
+					continue;
+				}
 				String row = rows.get(2);
 				for (RenameVariableDTO renameVariable : values.getDataModificationDTO().getRenameVariableList()) {
 					if (row.equals(renameVariable.getOriginalName())) {
@@ -183,6 +187,8 @@ public class Controller {
 				data.updateRow(key, rows);
 
 			}
+			analyticsDTO.getFileList().set(i, data);
+
 		}
 	}
 
@@ -191,31 +197,60 @@ public class Controller {
 	 * 
 	 * @param analyticsDTO
 	 */
-	private void sumAndDelete(AnalyticsDTO analyticsDTO) {
-		for (FileDTO data : analyticsDTO.getFileList()) {
+	private AnalyticsDTO sumAndDelete(AnalyticsDTO analyticsDTO) {
+		for(SumAndDeleteDTO sumAndDeleteDTO : values.getDataModificationDTO().getSumAndDeleteList()) {
+			values.getDataModificationDTO().getRenameVariableList().add(new RenameVariableDTO(sumAndDeleteDTO.getVariableToDelete(), sumAndDeleteDTO.getVariableToKeep()));
+		}
+
+		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+			FileDTO data = analyticsDTO.getFileList().get(i);
+
 			ArrayList<String> keysToSkip = new ArrayList<String>();
-
-			for (String key : data.getKeys()) {
-				if (keysToSkip.contains(key)) {
-					continue;
-				}
-				for (SumAndDeleteDTO sumAndDeleteDTO : values.getDataModificationDTO().getSumAndDeleteList()) {
-					if (key.endsWith(sumAndDeleteDTO.getVariableToKeep())) {
-						for (String deleteKey : data.getKeys()) {
-							if (deleteKey.endsWith(sumAndDeleteDTO.getVariableToDelete()) && !key.equals(deleteKey)) {
-
-								ArrayList<String> sum = addVariables(data.getRow(key), data.getRow(deleteKey));
-								data.deleteRow(deleteKey);
-								data.updateRow(key, sum);
-								keysToSkip.add(deleteKey);
-								break;
-							}
-						}
+			ArrayList<String> toBeKept;
+			String keepKey = null;
+			String deleteKey = null;
+			ArrayList<String> toBeDeleted;
+			for (SumAndDeleteDTO sumAndDeleteDTO : values.getDataModificationDTO().getSumAndDeleteList()) {
+				keepKey = null;
+				deleteKey = null;
+				for (String key : data.getKeys()) {
+					if(keysToSkip.contains(key)) {
+						continue;
+					}
+					String splitKey[] = key.split(";");
+					if(splitKey[2].equals(sumAndDeleteDTO.getVariableToKeep())) {
+						toBeKept = data.getRow(key);
+						keepKey = key;
+						break;
 					}
 				}
 
+				for (String key : data.getKeys()) {
+					String splitKey[] = key.split(";");
+					if(splitKey[2].equals(sumAndDeleteDTO.getVariableToDelete())) {
+						toBeDeleted = data.getRow(key);
+						deleteKey = key;
+						break;
+					}
+				}
+				if(deleteKey == null || keepKey == null) {
+					continue;
+				}
+				else {
+					
+					ArrayList<String> sum = addVariables(data.getRow(keepKey), data.getRow(deleteKey));
+					data.deleteRow(deleteKey);
+					data.removeKey(keepKey);
+					data.addRow(keepKey, sum);
+					keysToSkip.add(deleteKey);
+					analyticsDTO.getFileList().set(i, data);
+				}
 			}
+
+
 		}
+		renameDataVariables(analyticsDTO);
+		return analyticsDTO;
 	}
 
 	private ArrayList<String> addVariables(ArrayList<String> variable1, ArrayList<String> variable2) {
@@ -248,11 +283,12 @@ public class Controller {
 	}
 
 	private void addRecurringData(AnalyticsDTO analyticsDTO) {
-		for (FileDTO data : analyticsDTO.getFileList()) {
+		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+			FileDTO data = analyticsDTO.getFileList().get(i);
 			if(data.getDirectoryName() == null) {
 				for (RecurringData recurringData : values.getRecurringData()) {
 					for (RecurringDataEntry entry : recurringData.getRecurringData()) {
-						String entryID = entry.getMonth() + " " + entry.getYear();
+						String entryID = entry.getFileName();
 						if (entryID.equals(data.getSheetName())) {
 							for (String key : data.getKeys()) {
 								for (String recurringDataKey : entry.getKeys()) {
@@ -284,7 +320,7 @@ public class Controller {
 				for (RecurringData recurringData : values.getRecurringData()) {
 					if (recurringData.getFolder().equals(data.getDirectoryName())) {
 						for (RecurringDataEntry entry : recurringData.getRecurringData()) {
-							String entryID = entry.getMonth() + " " + entry.getYear();
+							String entryID = entry.getFileName();
 							if (entryID.equals(data.getSheetName())) {
 								for (String key : data.getKeys()) {
 									for (String recurringDataKey : entry.getKeys()) {
@@ -310,6 +346,7 @@ public class Controller {
 				}
 			}
 			// if(data.getSheetName().equals(values.getRecurringData().g))
+			analyticsDTO.getFileList().set(i, data);
 
 		}
 	}
