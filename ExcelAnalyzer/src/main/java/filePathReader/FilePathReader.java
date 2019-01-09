@@ -16,7 +16,7 @@ public class FilePathReader {
 	private int numberOfFolders = 0;
 
 	private final String userDirectory;
-	private String filesFolderPathName = "//%s//";
+	private String filesFolderPathName = "\\%s\\";
 
 	public FilePathReader() {
 		super();
@@ -79,7 +79,7 @@ public class FilePathReader {
 
 				for (int j = 0; j < directoryFiles.length; j++) {
 					if (directoryFiles[j].isFile()) {
-						// System.out.println("File: " + directoryFiles[j].getName());
+						System.out.println("File: " + directoryFiles[j].getName());
 						this.fileNames.add(new FileInformationDTO(directoryFiles[j].getName(), directory.getName()));
 					}
 				}

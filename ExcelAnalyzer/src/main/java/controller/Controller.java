@@ -114,6 +114,11 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//Enable the user to see the log.
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Press enter to close");
+		scanner.nextLine();
+		scanner.close();
 
 	}
 
@@ -181,12 +186,35 @@ public class Controller {
 				for (RenameVariableDTO renameVariable : values.getDataModificationDTO().getRenameVariableList()) {
 					if (row.equals(renameVariable.getOriginalName())) {
 						rows.set(2, renameVariable.getNewName());
+						if(renameVariable.getNewName().indexOf(":") != -1) {
+
+
+							int firstSeparator = 0;
+							int secondSeparator = 0;
+							firstSeparator = renameVariable.getNewName().indexOf(':');
+							secondSeparator = renameVariable.getNewName().substring(firstSeparator+1).indexOf(':');
+							String newKeyPart = renameVariable.getNewName().substring(0, firstSeparator + 1 + secondSeparator) + ":";
+							newKeyPart = newKeyPart.replace(":", ";");
+
+							rows.set(0, renameVariable.getNewName().substring(0, firstSeparator));
+							rows.set(1, renameVariable.getNewName().substring(firstSeparator+1, firstSeparator + secondSeparator + 1));
+							
+							String newKey = newKeyPart + renameVariable.getNewName();
+
+							data.updateRow(key, newKey, rows);
+						}
+						else {
+							String newKey = key.replaceFirst(renameVariable.getOriginalName(), renameVariable.getNewName());
+							data.updateRow(key, newKey, rows);
+
+						}
+
 					}
 				}
 
-				data.updateRow(key, rows);
 
 			}
+			data.updateKeys();
 			analyticsDTO.getFileList().set(i, data);
 
 		}
@@ -237,7 +265,7 @@ public class Controller {
 					continue;
 				}
 				else {
-					
+
 					ArrayList<String> sum = addVariables(data.getRow(keepKey), data.getRow(deleteKey));
 					data.deleteRow(deleteKey);
 					data.removeKey(keepKey);
@@ -289,6 +317,7 @@ public class Controller {
 				for (RecurringData recurringData : values.getRecurringData()) {
 					for (RecurringDataEntry entry : recurringData.getRecurringData()) {
 						String entryID = entry.getFileName();
+
 						if (entryID.equals(data.getSheetName())) {
 							for (String key : data.getKeys()) {
 								for (String recurringDataKey : entry.getKeys()) {
@@ -298,9 +327,7 @@ public class Controller {
 										continue;
 									}
 									String toBeAdded = entry.getData().get(recurringDataKey).toString();
-									if(toBeAdded == null) {
-										System.out.println("asdf");
-									}
+
 									rows.add(toBeAdded);
 									if (!analyticsDTO.categoryKnown(recurringDataKey)) {
 										analyticsDTO.addCategory(recurringDataKey);
@@ -321,6 +348,7 @@ public class Controller {
 					if (recurringData.getFolder().equals(data.getDirectoryName())) {
 						for (RecurringDataEntry entry : recurringData.getRecurringData()) {
 							String entryID = entry.getFileName();
+
 							if (entryID.equals(data.getSheetName())) {
 								for (String key : data.getKeys()) {
 									for (String recurringDataKey : entry.getKeys()) {
@@ -381,6 +409,7 @@ public class Controller {
 				for (String directory : data.getDirectoryNameList()) {
 					for (FileDTO dto : data.getFileList()) {
 
+						//This needs to be optimized - Fetch the correct dto file, instead of doing a loop. 
 						if (dto.getDirectoryName().equals(directory) && dto.getSheetName().equals(fileName)) {
 
 							dataRow = dto.getRow(event);
@@ -402,6 +431,7 @@ public class Controller {
 							}
 
 						}
+						continue;
 
 					}
 

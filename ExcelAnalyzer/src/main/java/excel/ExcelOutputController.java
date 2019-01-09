@@ -94,6 +94,11 @@ public class ExcelOutputController {
 
 					ArrayList<String> dataRow = data.getFileList().get(i).getRow(key);
 					if (dataRow != null) {
+						if(index >= dataRow.size()) {
+							rowReached--;
+							skipRow = true;
+							break;
+						}
 						cellValue = dataRow.get(index);
 					} else {
 						// Delete the inserted values for the directory and file name
@@ -123,8 +128,8 @@ public class ExcelOutputController {
 					String formula;
 					for (ColumnCalculationDTO columnCalculationDTO : globalValues.getDataModificationDTO()
 							.getColumnCalculationList()) {
-						int index1 = data.getCategoryList().indexOf(columnCalculationDTO.getColumn1Name());
-						int index2 = data.getCategoryList().indexOf(columnCalculationDTO.getColumn2Name());
+						int index1 = data.getCategoryList().indexOf(columnCalculationDTO.getColumn1Name().trim());
+						int index2 = data.getCategoryList().indexOf(columnCalculationDTO.getColumn2Name().trim());
 						formula = addresses[index1] + columnCalculationDTO.getOperator() + addresses[index2];
 						row.createCell(columnIndex).setCellFormula(formula);
 						columnIndex++;
