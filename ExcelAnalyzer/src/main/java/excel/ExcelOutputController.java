@@ -110,8 +110,13 @@ public class ExcelOutputController {
 						skipRow = true;
 						break;
 					}
-
-					if (cellValue != null && Character.isDigit(cellValue.charAt(0))) {
+					boolean isDigit = true;
+					for(int characterIndex = 0;characterIndex<cellValue.length();characterIndex++) {
+						if(cellValue != null && !Character.isDigit(cellValue.charAt(characterIndex))) {
+							isDigit = false;
+						}
+					}
+					if (isDigit) {
 
 						row.createCell(columnIndex).setCellValue(Integer.parseInt(cellValue));
 
