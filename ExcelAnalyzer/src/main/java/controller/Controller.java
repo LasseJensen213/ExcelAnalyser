@@ -16,6 +16,7 @@ import dataTransferObjects.RecurringData;
 import dataTransferObjects.RecurringDataEntry;
 import dataTransferObjects.RenameVariableDTO;
 import dataTransferObjects.SumAndDeleteDTO;
+import dataTransferObjects.SumAndDeleteLabelDTO;
 import excel.ExcelInputController;
 import excel.ExcelOutputController;
 import exceptions.IncorrectDirectoryException;
@@ -89,6 +90,9 @@ public class Controller {
 
 		System.out.println("Omdøber hændelsesetiketer");
 		renameDataVariables(generalData);
+
+		System.out.println("Omdøber hændelseskategorier");
+		sumAndDeleteLabels(generalData);
 
 		System.out.println("Summérer og sletter variable");
 		generalData = sumAndDelete(generalData);
@@ -198,7 +202,7 @@ public class Controller {
 
 							rows.set(0, renameVariable.getNewName().substring(0, firstSeparator));
 							rows.set(1, renameVariable.getNewName().substring(firstSeparator+1, firstSeparator + secondSeparator + 1));
-							
+
 							String newKey = newKeyPart + renameVariable.getNewName();
 
 							data.updateRow(key, newKey, rows);
@@ -463,6 +467,64 @@ public class Controller {
 			data.addFile(dto);
 		}
 
+	}
+
+
+
+	private AnalyticsDTO sumAndDeleteLabels(AnalyticsDTO analyticsDTO) {
+		for(SumAndDeleteLabelDTO sumAndDeleteDTO : values.getDataModification2DTO().getSumAndDeleteLabelsList()) {
+			//values.getDataModificationDTO().getRenameVariableList().add(new RenameVariableDTO(sumAndDeleteDTO.getVariableToDelete(), sumAndDeleteDTO.getVariableToKeep()));
+		}
+
+		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+			FileDTO data = analyticsDTO.getFileList().get(i);
+
+			ArrayList<String> keysToSkip = new ArrayList<String>();
+			ArrayList<String> toBeKept;
+			String keepKey = null;
+			String deleteKey = null;
+			ArrayList<String> toBeDeleted;
+			for (SumAndDeleteLabelDTO sumAndDeleteLabelDTO : values.getDataModification2DTO().getSumAndDeleteLabelsList()) {
+				keepKey = null;
+				deleteKey = null;
+				for (String key : data.getKeys()) {
+					if(keysToSkip.contains(key)) {
+						continue;
+					}
+					String splitKey[] = key.split(";");
+					if(splitKey[2].equals(sumAndDeleteLabelDTO.getNewVariableName())) {
+						toBeKept = data.getRow(key);
+						keepKey = key;
+						break;
+					}
+				}
+
+				for (String key : data.getKeys()) {
+					String splitKey[] = key.split(";");
+					if(splitKey[2].equals(sumAndDeleteDTO.getVariableToDelete())) {
+						toBeDeleted = data.getRow(key);
+						deleteKey = key;
+						break;
+					}
+				}
+				if(deleteKey == null || keepKey == null) {
+					continue;
+				}
+				else {
+
+					ArrayList<String> sum = addVariables(data.getRow(keepKey), data.getRow(deleteKey));
+					data.deleteRow(deleteKey);
+					data.removeKey(keepKey);
+					data.addRow(keepKey, sum);
+					keysToSkip.add(deleteKey);
+					analyticsDTO.getFileList().set(i, data);
+				}
+			}
+
+
+		}
+		renameDataVariables(analyticsDTO);
+		return analyticsDTO;
 	}
 
 }

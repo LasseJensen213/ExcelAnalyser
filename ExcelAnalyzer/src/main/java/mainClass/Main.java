@@ -1,6 +1,7 @@
 package mainClass;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -26,6 +27,12 @@ public class Main {
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}
+		finally {
+			Scanner scanner = new Scanner(System.in);
+			System.out.println("Press enter to close");
+			scanner.nextLine();
+			scanner.close();
 		}
 
 	}

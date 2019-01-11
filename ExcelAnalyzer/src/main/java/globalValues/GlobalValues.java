@@ -2,6 +2,7 @@ package globalValues;
 
 import java.util.ArrayList;
 
+import dataTransferObjects.DataModification2DTO;
 import dataTransferObjects.DataModificationDTO;
 import dataTransferObjects.RecurringData;
 
@@ -18,6 +19,7 @@ public class GlobalValues {
 
 	private ArrayList<RecurringData> recurringData = new ArrayList<RecurringData>();
 	private DataModificationDTO dataModificationDTO = new DataModificationDTO();
+	private DataModification2DTO dataModification2DTO = new DataModification2DTO();
 
 	public static GlobalValues getInstance() {
 		if (single_instance == null)
@@ -93,6 +95,15 @@ public class GlobalValues {
 
 	public void setDataModificationDTO(DataModificationDTO dataModificationDTO) {
 		this.dataModificationDTO = dataModificationDTO;
+	}
+
+	public void setDataModification2DTO(DataModification2DTO dataModification2DTO) {
+		this.dataModification2DTO = dataModification2DTO;
+		
+	}
+
+	public DataModification2DTO getDataModification2DTO() {
+		return dataModification2DTO;
 	}
 
 }

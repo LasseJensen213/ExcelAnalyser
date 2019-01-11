@@ -12,13 +12,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import dataTransferObjects.ColumnCalculationDTO;
+import dataTransferObjects.DataModification2DTO;
 import dataTransferObjects.DataModificationDTO;
 import dataTransferObjects.RecurringData;
 import dataTransferObjects.RecurringDataEntry;
+import dataTransferObjects.SumAndDeleteLabelDTO;
 import dataTransferObjects.RenameVariableDTO;
 import dataTransferObjects.SettingVariableNamesDTO;
 import dataTransferObjects.SettingVariableNamesDTO.SettingVariableIdentifiers;
 import dataTransferObjects.SumAndDeleteDTO;
+import dataTransferObjects.ThresholdDTO;
 import exceptions.UnknownSettingsVariableNameException;
 import globalValues.GlobalValues;
 
@@ -31,6 +34,8 @@ public class ExcelInputController {
 	private final String settingsName = "Indstillinger";
 	private final String recurringData = "Gengående oplysninger";
 	private final String dataModificationName = "Data modifikation";
+	private final String dataModificationName2 = "Data modifikation 2";
+	
 
 	private ArrayList<String> recurringDataSheetNames;
 
@@ -82,6 +87,7 @@ public class ExcelInputController {
 
 		this.globalValues.setRecurringData(readRecurringDataSheet());
 		this.globalValues.setDataModificationDTO(readDataModificationDocument());
+		this.globalValues.setDataModification2DTO(readDataModification2Document());
 
 		workbook.close();
 	}
@@ -178,6 +184,7 @@ public class ExcelInputController {
 		int columnCalculationStart = 0;
 		int renameVariableStart = 6;
 		int sumAndDeleteStart = 11;
+		
 
 		// Row variables
 		int rowStart = 2;
@@ -285,6 +292,93 @@ public class ExcelInputController {
 
 	}
 
+	public DataModification2DTO readDataModification2Document() {
+		int renameLabelStart = 0;
+		int thresholdStart = 4;
+		
+
+		// Row variables
+		int rowStart = 2;
+		int currentRow = rowStart;
+
+		// Collect the data
+		ArrayList<SumAndDeleteLabelDTO> renameLabelList = new ArrayList<SumAndDeleteLabelDTO>();
+		ArrayList<ThresholdDTO> thresholdList = new ArrayList<ThresholdDTO>();
+		DataModification2DTO dataModification2DTO = new DataModification2DTO();
+
+		Sheet dataModificationSheet = workbook.getSheet(dataModificationName2);
+		if(dataModificationSheet == null) {
+			return null;
+		}
+
+		Row row;
+
+		//Reset the currentRow
+//		currentRow = rowStart;
+
+		// Read the variables to be renamed
+		while (true) {
+			row = dataModificationSheet.getRow(currentRow);
+			if (row == null) {
+				break;
+			}
+
+			Cell variableNameCell = row.getCell(0 + renameLabelStart);
+			Cell replacementNameCell = row.getCell(1 + renameLabelStart);
+
+			// If either of the strings are null, some data are missing and the calculation
+			// cannot be performed
+			if (variableNameCell == null || replacementNameCell == null) {
+				break;
+			}
+
+			String variableName = variableNameCell.getStringCellValue();
+			String replacementName = replacementNameCell.getStringCellValue();
+
+			SumAndDeleteLabelDTO renameLabel = new SumAndDeleteLabelDTO(variableName, replacementName);
+
+			renameLabelList.add(renameLabel);
+			currentRow++;
+		}
+//
+//		// Reset the currentRow
+//		currentRow = rowStart;
+//
+//		// Read the variables to summed and deleted
+//		while (true) {
+//			row = dataModificationSheet.getRow(currentRow);
+//			if (row == null) {
+//				break;
+//			}
+//
+//			Cell variable1 = row.getCell(0 + sumAndDeleteStart);
+//			Cell variable2 = row.getCell(1 + sumAndDeleteStart);
+//
+//			// If either of the strings are null, some data are missing and the calculation
+//			// cannot be performed
+//			if (variable1 == null || variable2 == null) {
+//				break;
+//			}
+//
+//			String variable1Name = variable1.getStringCellValue();
+//			String variable2Name = variable2.getStringCellValue();
+//
+//			SumAndDeleteDTO sumAndDelete = new SumAndDeleteDTO(variable1Name, variable2Name);
+//
+//			sumAndDeleteList.add(sumAndDelete);
+//			currentRow++;
+//		}
+//
+//		dataModificationDTO.setColumnCalculationList(columnCalculationList);
+		dataModification2DTO.setRenameVariableList(renameLabelList);
+//		dataModificationDTO.setSumAndDeleteList(sumAndDeleteList);
+
+		return dataModification2DTO;
+
+	}
+
+
+	
 	public SettingVariableNamesDTO readSettingsSheet() throws UnknownSettingsVariableNameException {
 		// Where does the data start
 		int startRow = 1;
