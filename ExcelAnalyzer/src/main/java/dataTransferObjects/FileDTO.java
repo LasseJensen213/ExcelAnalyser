@@ -3,7 +3,6 @@ package dataTransferObjects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class FileDTO {
 
@@ -52,10 +51,11 @@ public class FileDTO {
 	}
 
 	public void updateRow(String oldKey, String newKey, ArrayList<String> rows) {
-		
+
 		this.rows.remove(oldKey);
 		this.rows.put(newKey, rows);
- 	}
+	}
+
 	public void updateKeys() {
 		ArrayList<String> newKeys = new ArrayList<String>();
 		newKeys.addAll(this.rows.keySet());
@@ -65,6 +65,7 @@ public class FileDTO {
 	public void deleteRow(String key) {
 		this.rows.remove(key);
 	}
+
 	public void removeKey(String key) {
 		this.keys.remove(key);
 	}

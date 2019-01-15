@@ -12,7 +12,6 @@ public class Main {
 
 	public static void main(String[] args) {
 
-
 		try {
 			Controller controller = new Controller();
 			controller.analyze();
@@ -27,11 +26,10 @@ public class Main {
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-		finally {
+		} finally {
 			Scanner scanner = new Scanner(System.in);
 			System.out.println("Press enter to close");
-			scanner.nextLine();
+			scanner.next();
 			scanner.close();
 		}
 

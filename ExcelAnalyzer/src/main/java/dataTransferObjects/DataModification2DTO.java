@@ -6,7 +6,7 @@ public class DataModification2DTO {
 
 	ArrayList<SumAndDeleteLabelDTO> renameVariableList = new ArrayList<SumAndDeleteLabelDTO>();
 	ArrayList<ThresholdDTO> columnCalculationList = new ArrayList<ThresholdDTO>();
-	
+
 	public DataModification2DTO() {
 		// TODO Auto-generated constructor stub
 	}
@@ -33,6 +33,4 @@ public class DataModification2DTO {
 				+ renameVariableList + "]";
 	}
 
-	
-	
 }

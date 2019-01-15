@@ -99,7 +99,7 @@ public class GlobalValues {
 
 	public void setDataModification2DTO(DataModification2DTO dataModification2DTO) {
 		this.dataModification2DTO = dataModification2DTO;
-		
+
 	}
 
 	public DataModification2DTO getDataModification2DTO() {

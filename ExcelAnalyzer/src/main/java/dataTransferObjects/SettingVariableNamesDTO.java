@@ -5,7 +5,8 @@ import exceptions.UnknownSettingsVariableNameException;
 public class SettingVariableNamesDTO {
 
 	public enum SettingVariableIdentifiers {
-		typeNameForSumOfVariables, nameDataFolder, nameAndroidFolder, nameIOSFolder, nameOutputExcelFile, nameDataSheetFile;
+		typeNameForSumOfVariables, nameDataFolder, nameAndroidFolder, nameIOSFolder, nameOutputExcelFile,
+		nameDataSheetFile;
 
 		public static SettingVariableIdentifiers fromString(String from) throws UnknownSettingsVariableNameException {
 			for (SettingVariableIdentifiers type : SettingVariableIdentifiers.values()) {

@@ -14,19 +14,13 @@ public class RecurringDataEntry {
 		keys = new ArrayList<String>();
 	}
 
-
-
 	public String getFileName() {
 		return fileName;
 	}
 
-
-
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-
-
 
 	public HashMap<String, Integer> getData() {
 		return data;
@@ -45,5 +39,4 @@ public class RecurringDataEntry {
 		return keys;
 	}
 
-	
 }

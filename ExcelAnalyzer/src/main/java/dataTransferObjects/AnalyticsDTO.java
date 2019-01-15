@@ -64,8 +64,7 @@ public class AnalyticsDTO {
 	}
 
 	/**
-	 * @param add
-	 *            category to list
+	 * @param add category to list
 	 */
 	public void addCategory(String category) {
 		this.categoryList.add(category);

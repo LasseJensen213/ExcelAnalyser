@@ -20,7 +20,6 @@ public class ExcelOutputController {
 
 	private String path = "./%s.xlsx";
 
-
 	GlobalValues globalValues;
 
 	public ExcelOutputController() throws EncryptedDocumentException, InvalidFormatException, IOException {
@@ -46,10 +45,11 @@ public class ExcelOutputController {
 			headerRow.createCell(i + 1 + pushHeaders).setCellValue(data.getCategoryList().get(i));
 		}
 		int columnCalculationIndex = 0 + pushHeaders + 1;
-		for (ColumnCalculationDTO columnCalculationDTO : globalValues.getDataModificationDTO().getColumnCalculationList()) {
+		for (ColumnCalculationDTO columnCalculationDTO : globalValues.getDataModificationDTO()
+				.getColumnCalculationList()) {
 
 			headerRow.createCell(data.getCategoryList().size() + columnCalculationIndex)
-			.setCellValue(columnCalculationDTO.getColumnHeaderName());
+					.setCellValue(columnCalculationDTO.getColumnHeaderName());
 			columnCalculationIndex++;
 		}
 
@@ -94,7 +94,7 @@ public class ExcelOutputController {
 
 					ArrayList<String> dataRow = data.getFileList().get(i).getRow(key);
 					if (dataRow != null) {
-						if(index >= dataRow.size()) {
+						if (index >= dataRow.size()) {
 							rowReached--;
 							skipRow = true;
 							break;
@@ -103,7 +103,7 @@ public class ExcelOutputController {
 					} else {
 						// Delete the inserted values for the directory and file name
 						row.getCell(0).setCellValue("");
-						if(data.isMultipleFolders()) {
+						if (data.isMultipleFolders()) {
 							row.getCell(1).setCellValue("");
 						}
 						rowReached--;
@@ -111,8 +111,8 @@ public class ExcelOutputController {
 						break;
 					}
 					boolean isDigit = true;
-					for(int characterIndex = 0;characterIndex<cellValue.length();characterIndex++) {
-						if(cellValue != null && !Character.isDigit(cellValue.charAt(characterIndex))) {
+					for (int characterIndex = 0; characterIndex < cellValue.length(); characterIndex++) {
+						if (cellValue != null && !Character.isDigit(cellValue.charAt(characterIndex))) {
 							isDigit = false;
 						}
 					}
@@ -153,7 +153,6 @@ public class ExcelOutputController {
 		// this.endAddress = getEndAddress(sheet);
 
 	}
-
 
 	/**
 	 * Closes and saves the Excel workbook. <br>

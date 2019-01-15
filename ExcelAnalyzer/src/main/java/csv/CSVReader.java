@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-
+import java.util.Arrays;
 import dataTransferObjects.AnalyticsDTO;
 import dataTransferObjects.FileDTO;
 
@@ -22,11 +22,9 @@ public class CSVReader {
 	 * Reads a csv file and saves the information in the analyticsDTO
 	 * 
 	 * 
-	 * @param fileName
-	 *            - String
+	 * @param fileName     - String
 	 * @param finalPath
-	 * @param analyticsDTO
-	 *            - AnalyticsDTO
+	 * @param analyticsDTO - AnalyticsDTO
 	 * 
 	 */
 	public void readCSVFile(String fileName, String directoryName, String finalPath, AnalyticsDTO analyticsDTO) {
@@ -34,11 +32,11 @@ public class CSVReader {
 		// Create a new sheetDTO with the fileName
 		analyticsDTO.addDirectory(directoryName);
 		FileDTO csvFile = new FileDTO(fileName, directoryName);
+		System.out.println(finalPath);
 
 		try {
 			// Create the reader
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(
-					finalPath), "UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(finalPath), "UTF-8"));
 
 			// Boolean to check if we've reached the first line.
 			boolean firstLineReached = false;
@@ -87,15 +85,8 @@ public class CSVReader {
 					}
 				}
 				// Add the categories
-
-				// Hardcoding stuff
-
 				if (!firstLineReached) {
 					for (String input : row) {
-						// if(input.contains("æ")) {
-						// input.replace("æ", "æ");
-						// }
-
 						if (!analyticsDTO.categoryKnown(input)) {
 							analyticsDTO.addCategory(input);
 						}
@@ -106,7 +97,6 @@ public class CSVReader {
 
 				// Assign information to variables
 				String eventName = row[0] + ";" + row[1] + ";" + row[2];
-		
 
 				// if the event name isn't known, add it to the collective list.
 				if (!analyticsDTO.eventKnown(eventName)) {
@@ -114,15 +104,7 @@ public class CSVReader {
 				}
 
 				ArrayList<String> rowValues = new ArrayList<String>();
-
-				// Run through values in the row.
-				for (String rowValue : row) {
-
-					rowValues.add(rowValue);
-
-				}
-				// System.out.println("");
-
+				rowValues.addAll(Arrays.asList(row));
 				csvFile.addRow(eventName, rowValues);
 
 			}

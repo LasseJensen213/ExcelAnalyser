@@ -3,6 +3,7 @@ package controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import org.apache.poi.EncryptedDocumentException;
@@ -35,8 +36,6 @@ public class Controller {
 
 	// CSVReader
 	private CSVReader csvReader;
-
-
 
 	private final String fileType = ".csv";
 
@@ -92,7 +91,7 @@ public class Controller {
 		renameDataVariables(generalData);
 
 		System.out.println("Omdøber hændelseskategorier");
-		sumAndDeleteLabels(generalData);
+		generalData = sumAndDeleteLabels(generalData);
 
 		System.out.println("Summérer og sletter variable");
 		generalData = sumAndDelete(generalData);
@@ -118,7 +117,7 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//Enable the user to see the log.
+		// Enable the user to see the log.
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Press enter to close");
 		scanner.nextLine();
@@ -179,43 +178,43 @@ public class Controller {
 	 * @param analyticsDTO
 	 */
 	private void renameDataVariables(AnalyticsDTO analyticsDTO) {
-		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
 			FileDTO data = analyticsDTO.getFileList().get(i);
 			for (String key : data.getKeys()) {
 				ArrayList<String> rows = data.getRow(key);
-				if(rows == null) {
+				if (rows == null) {
 					continue;
 				}
 				String row = rows.get(2);
 				for (RenameVariableDTO renameVariable : values.getDataModificationDTO().getRenameVariableList()) {
 					if (row.equals(renameVariable.getOriginalName())) {
 						rows.set(2, renameVariable.getNewName());
-						if(renameVariable.getNewName().indexOf(":") != -1) {
-
+						if (renameVariable.getNewName().indexOf(":") != -1) {
 
 							int firstSeparator = 0;
 							int secondSeparator = 0;
 							firstSeparator = renameVariable.getNewName().indexOf(':');
-							secondSeparator = renameVariable.getNewName().substring(firstSeparator+1).indexOf(':');
-							String newKeyPart = renameVariable.getNewName().substring(0, firstSeparator + 1 + secondSeparator) + ":";
+							secondSeparator = renameVariable.getNewName().substring(firstSeparator + 1).indexOf(':');
+							String newKeyPart = renameVariable.getNewName().substring(0,
+									firstSeparator + 1 + secondSeparator) + ":";
 							newKeyPart = newKeyPart.replace(":", ";");
 
 							rows.set(0, renameVariable.getNewName().substring(0, firstSeparator));
-							rows.set(1, renameVariable.getNewName().substring(firstSeparator+1, firstSeparator + secondSeparator + 1));
+							rows.set(1, renameVariable.getNewName().substring(firstSeparator + 1,
+									firstSeparator + secondSeparator + 1));
 
 							String newKey = newKeyPart + renameVariable.getNewName();
 
 							data.updateRow(key, newKey, rows);
-						}
-						else {
-							String newKey = key.replaceFirst(renameVariable.getOriginalName(), renameVariable.getNewName());
+						} else {
+							String newKey = key.replaceFirst(renameVariable.getOriginalName(),
+									renameVariable.getNewName());
 							data.updateRow(key, newKey, rows);
 
 						}
 
 					}
 				}
-
 
 			}
 			data.updateKeys();
@@ -230,11 +229,12 @@ public class Controller {
 	 * @param analyticsDTO
 	 */
 	private AnalyticsDTO sumAndDelete(AnalyticsDTO analyticsDTO) {
-		for(SumAndDeleteDTO sumAndDeleteDTO : values.getDataModificationDTO().getSumAndDeleteList()) {
-			values.getDataModificationDTO().getRenameVariableList().add(new RenameVariableDTO(sumAndDeleteDTO.getVariableToDelete(), sumAndDeleteDTO.getVariableToKeep()));
+		for (SumAndDeleteDTO sumAndDeleteDTO : values.getDataModificationDTO().getSumAndDeleteList()) {
+			values.getDataModificationDTO().getRenameVariableList().add(
+					new RenameVariableDTO(sumAndDeleteDTO.getVariableToDelete(), sumAndDeleteDTO.getVariableToKeep()));
 		}
 
-		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
 			FileDTO data = analyticsDTO.getFileList().get(i);
 
 			ArrayList<String> keysToSkip = new ArrayList<String>();
@@ -246,11 +246,11 @@ public class Controller {
 				keepKey = null;
 				deleteKey = null;
 				for (String key : data.getKeys()) {
-					if(keysToSkip.contains(key)) {
+					if (keysToSkip.contains(key)) {
 						continue;
 					}
 					String splitKey[] = key.split(";");
-					if(splitKey[2].equals(sumAndDeleteDTO.getVariableToKeep())) {
+					if (splitKey[2].equals(sumAndDeleteDTO.getVariableToKeep())) {
 						toBeKept = data.getRow(key);
 						keepKey = key;
 						break;
@@ -259,16 +259,15 @@ public class Controller {
 
 				for (String key : data.getKeys()) {
 					String splitKey[] = key.split(";");
-					if(splitKey[2].equals(sumAndDeleteDTO.getVariableToDelete())) {
+					if (splitKey[2].equals(sumAndDeleteDTO.getVariableToDelete())) {
 						toBeDeleted = data.getRow(key);
 						deleteKey = key;
 						break;
 					}
 				}
-				if(deleteKey == null || keepKey == null) {
+				if (deleteKey == null || keepKey == null) {
 					continue;
-				}
-				else {
+				} else {
 
 					ArrayList<String> sum = addVariables(data.getRow(keepKey), data.getRow(deleteKey));
 					data.deleteRow(deleteKey);
@@ -278,7 +277,6 @@ public class Controller {
 					analyticsDTO.getFileList().set(i, data);
 				}
 			}
-
 
 		}
 		renameDataVariables(analyticsDTO);
@@ -315,9 +313,9 @@ public class Controller {
 	}
 
 	private void addRecurringData(AnalyticsDTO analyticsDTO) {
-		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
 			FileDTO data = analyticsDTO.getFileList().get(i);
-			if(data.getDirectoryName() == null) {
+			if (data.getDirectoryName() == null) {
 				for (RecurringData recurringData : values.getRecurringData()) {
 					for (RecurringDataEntry entry : recurringData.getRecurringData()) {
 						String entryID = entry.getFileName();
@@ -346,8 +344,7 @@ public class Controller {
 
 					}
 				}
-			}
-			else {
+			} else {
 				for (RecurringData recurringData : values.getRecurringData()) {
 					if (recurringData.getFolder().equals(data.getDirectoryName())) {
 						for (RecurringDataEntry entry : recurringData.getRecurringData()) {
@@ -413,7 +410,8 @@ public class Controller {
 				for (String directory : data.getDirectoryNameList()) {
 					for (FileDTO dto : data.getFileList()) {
 
-						//This needs to be optimized - Fetch the correct dto file, instead of doing a loop. 
+						// This needs to be optimized - Fetch the correct dto file, instead of doing a
+						// loop.
 						if (dto.getDirectoryName().equals(directory) && dto.getSheetName().equals(fileName)) {
 
 							dataRow = dto.getRow(event);
@@ -469,62 +467,133 @@ public class Controller {
 
 	}
 
-
-
 	private AnalyticsDTO sumAndDeleteLabels(AnalyticsDTO analyticsDTO) {
-		for(SumAndDeleteLabelDTO sumAndDeleteDTO : values.getDataModification2DTO().getSumAndDeleteLabelsList()) {
-			//values.getDataModificationDTO().getRenameVariableList().add(new RenameVariableDTO(sumAndDeleteDTO.getVariableToDelete(), sumAndDeleteDTO.getVariableToKeep()));
-		}
-
-		for(int i = 0;i<analyticsDTO.getFileList().size();i++) {
+		//Run through each file in the list
+		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
 			FileDTO data = analyticsDTO.getFileList().get(i);
-
-			ArrayList<String> keysToSkip = new ArrayList<String>();
-			ArrayList<String> toBeKept;
-			String keepKey = null;
-			String deleteKey = null;
-			ArrayList<String> toBeDeleted;
+			//Run through each sumAndDeleteLabelDTO entry
 			for (SumAndDeleteLabelDTO sumAndDeleteLabelDTO : values.getDataModification2DTO().getSumAndDeleteLabelsList()) {
-				keepKey = null;
-				deleteKey = null;
-				for (String key : data.getKeys()) {
-					if(keysToSkip.contains(key)) {
-						continue;
+				//Find all entries with the corrosponding prefix
+				HashMap<String, ArrayList<String>> keysToAddTogether = getVariablesWithPrefix(data, sumAndDeleteLabelDTO);
+				//Combine the found values
+				HashMap<String, ArrayList<String>> combinedValues = combineValuesFromKeys(data, keysToAddTogether);
+
+				//Delete the old values
+				for (String key : keysToAddTogether.keySet()) {
+					// Iterate over the keys in the ArrayList<String>
+					ArrayList<String> elementKeys = keysToAddTogether.get(key);
+					for (String rowKey : elementKeys) {
+						data.deleteRow(rowKey);
+
 					}
-					String splitKey[] = key.split(";");
-					if(splitKey[2].equals(sumAndDeleteLabelDTO.getNewVariableName())) {
-						toBeKept = data.getRow(key);
-						keepKey = key;
-						break;
-					}
+				}
+				data.updateKeys();
+
+				//Generate new keys and add the values to the AnalyticsDTO
+				for(String key : combinedValues.keySet()) {
+					ArrayList<String> row = combinedValues.get(key);
+					row.set(0, sumAndDeleteLabelDTO.getNewVariableName());
+					String finalKey = sumAndDeleteLabelDTO.getNewVariableName() + ";" + row.get(1) + ";" + row.get(2);
+					data.addRow(finalKey, row);
+
 				}
 
-				for (String key : data.getKeys()) {
-					String splitKey[] = key.split(";");
-					if(splitKey[2].equals(sumAndDeleteDTO.getVariableToDelete())) {
-						toBeDeleted = data.getRow(key);
-						deleteKey = key;
-						break;
+
+
+
+			}
+			analyticsDTO.getFileList().set(i, data);
+
+
+
+		}
+		return analyticsDTO;
+	}
+
+	/**
+	 * Returns a HashMap<String, ArrayList<String>> where the ArrayList<String>
+	 * contains they keys to the rowvalues.
+	 * 
+	 * @param data
+	 * @param sumAndDeleteLabelDTO
+	 * @param preffix
+	 * @return HashMap<String, ArrayList<String>>
+	 */
+	private HashMap<String, ArrayList<String>> getVariablesWithPrefix(FileDTO data,
+			SumAndDeleteLabelDTO sumAndDeleteLabelDTO) {
+		// Create return value
+		HashMap<String, ArrayList<String>> returnValue = new HashMap<String, ArrayList<String>>();
+		// Run through all of the keys
+		for (String key : data.getKeys()) {
+			// Check if the corresponding row starts with he prefix.
+			if (data.getRow(key).get(0).startsWith(sumAndDeleteLabelDTO.getStartWithString())) {
+				// Check whether or whether not the category ends with the suffix
+				boolean toExclude = false; // If true, it shall be excluded.
+				if(sumAndDeleteLabelDTO.getExcludeSuffixes() != null)  {
+					for (String suffix : sumAndDeleteLabelDTO.getExcludeSuffixes()) {
+						if (data.getRow(key).get(0).endsWith(suffix)) {
+							toExclude = true;
+							break;
+						}
 					}
 				}
-				if(deleteKey == null || keepKey == null) {
+				if (toExclude) {
 					continue;
 				}
-				else {
+				// The value shall not be excluded.
+				// Create new key for the HashMap
+				String HashMapKey = data.getRow(key).get(1) + ";" + data.getRow(key).get(2);
+				// Check if the Action + label is in the HashMap
+				if (returnValue.containsKey(HashMapKey)) {
+					// Fetch the already existing ArrayList<String> of keys
+					ArrayList<String> keys = returnValue.get(HashMapKey);
+					// Add the new key to the collection
+					keys.add(key);
+					// Update the HashMap
+					returnValue.put(HashMapKey, keys);
 
-					ArrayList<String> sum = addVariables(data.getRow(keepKey), data.getRow(deleteKey));
-					data.deleteRow(deleteKey);
-					data.removeKey(keepKey);
-					data.addRow(keepKey, sum);
-					keysToSkip.add(deleteKey);
-					analyticsDTO.getFileList().set(i, data);
 				}
+				// The HashMapKey doesn't exist in the HashMap.
+				// Create a new ArrayList<String> with the key and map it to HashMapKey
+				else {
+					ArrayList<String> keys = new ArrayList<String>();
+					keys.add(key);
+					returnValue.put(HashMapKey, keys);
+				}
+
 			}
 
+		}
+		return returnValue;
+	}
+
+	private HashMap<String, ArrayList<String>> combineValuesFromKeys(FileDTO data,
+			HashMap<String, ArrayList<String>> keys) {
+		// Instantiate return value
+		HashMap<String, ArrayList<String>> returnValue = new HashMap<String, ArrayList<String>>();
+		// Iterate over the keys
+		for (String key : keys.keySet()) {
+			// Create the final value
+			ArrayList<String> finalValue = new ArrayList<String>();
+			// Iterate over the keys in the ArrayList<String>
+			ArrayList<String> elementKeys = keys.get(key);
+			for (String rowKey : elementKeys) {
+				// Check if the finalValue isn't empty
+				if (!finalValue.isEmpty()) {
+					// Add the two variables.
+					finalValue = addVariables(finalValue, data.getRow(rowKey));
+				} else {
+					// Let finalValue be equal to the row
+					finalValue = data.getRow(rowKey);
+
+				}
+
+			}
+			// The final value has been calculated. Add it to the HashMap
+			returnValue.put(key, finalValue);
 
 		}
-		renameDataVariables(analyticsDTO);
-		return analyticsDTO;
+		return returnValue;
 	}
 
 }
