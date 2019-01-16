@@ -468,6 +468,10 @@ public class Controller {
 	}
 
 	private AnalyticsDTO sumAndDeleteLabels(AnalyticsDTO analyticsDTO) {
+		//Check to see if we actually have any work to do.
+		if(values.getDataModification2DTO().getSumAndDeleteLabelsList().isEmpty()) {
+			return analyticsDTO;
+		}
 		//Run through each file in the list
 		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
 			FileDTO data = analyticsDTO.getFileList().get(i);

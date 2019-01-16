@@ -330,10 +330,12 @@ public class ExcelInputController {
 			if (variableNameCell == null || replacementNameCell == null) {
 				break;
 			}
-			ArrayList<String> adsf = new ArrayList<String>();
 
 			String variableName = variableNameCell.getStringCellValue();
 			String replacementName = replacementNameCell.getStringCellValue();
+			if(variableName.length() == 0 || replacementName.length() == 0) {
+				break;
+			}
 			SumAndDeleteLabelDTO renameLabel;
 			if (excludeCell != null) {
 				ArrayList<String> excludeSuffixes = new ArrayList<String>(

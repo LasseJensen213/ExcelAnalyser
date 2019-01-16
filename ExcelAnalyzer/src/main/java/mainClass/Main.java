@@ -29,7 +29,7 @@ public class Main {
 		} finally {
 			Scanner scanner = new Scanner(System.in);
 			System.out.println("Press enter to close");
-			scanner.next();
+			scanner.nextLine();
 			scanner.close();
 		}
 

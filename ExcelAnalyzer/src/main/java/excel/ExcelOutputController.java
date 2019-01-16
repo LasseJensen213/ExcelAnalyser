@@ -117,7 +117,9 @@ public class ExcelOutputController {
 						}
 					}
 					if (isDigit) {
-
+						if(cellValue == "") {
+							System.out.println("asdf");
+						}
 						row.createCell(columnIndex).setCellValue(Integer.parseInt(cellValue));
 
 					} else {
