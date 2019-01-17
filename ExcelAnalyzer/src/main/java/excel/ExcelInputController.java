@@ -21,8 +21,8 @@ import dataTransferObjects.RenameVariableDTO;
 import dataTransferObjects.SettingVariableNamesDTO;
 import dataTransferObjects.SettingVariableNamesDTO.SettingVariableIdentifiers;
 import dataTransferObjects.SumAndDeleteDTO;
+import dataTransferObjects.SumAndDeleteCategoryDTO;
 import dataTransferObjects.SumAndDeleteLabelDTO;
-import dataTransferObjects.ThresholdDTO;
 import exceptions.UnknownSettingsVariableNameException;
 import globalValues.GlobalValues;
 
@@ -292,16 +292,16 @@ public class ExcelInputController {
 	}
 
 	public DataModification2DTO readDataModification2Document() {
-		int renameLabelStart = 0;
-		int thresholdStart = 4;
+		int renameCategoryStart = 0;
+		int renameLabelStart = 4;
 
 		// Row variables
 		int rowStart = 2;
 		int currentRow = rowStart;
 
 		// Collect the data
+		ArrayList<SumAndDeleteCategoryDTO> renameCategoryList = new ArrayList<SumAndDeleteCategoryDTO>();
 		ArrayList<SumAndDeleteLabelDTO> renameLabelList = new ArrayList<SumAndDeleteLabelDTO>();
-		ArrayList<ThresholdDTO> thresholdList = new ArrayList<ThresholdDTO>();
 		DataModification2DTO dataModification2DTO = new DataModification2DTO();
 
 		Sheet dataModificationSheet = workbook.getSheet(dataModificationName2);
@@ -321,9 +321,9 @@ public class ExcelInputController {
 				break;
 			}
 
-			Cell variableNameCell = row.getCell(0 + renameLabelStart);
-			Cell replacementNameCell = row.getCell(1 + renameLabelStart);
-			Cell excludeCell = row.getCell(2 + renameLabelStart);
+			Cell variableNameCell = row.getCell(0 + renameCategoryStart);
+			Cell replacementNameCell = row.getCell(1 + renameCategoryStart);
+			Cell excludeCell = row.getCell(2 + renameCategoryStart);
 
 			// If either of the strings are null, some data are missing and the calculation
 			// cannot be performed
@@ -336,52 +336,64 @@ public class ExcelInputController {
 			if(variableName.length() == 0 || replacementName.length() == 0) {
 				break;
 			}
+			SumAndDeleteCategoryDTO renameLabel;
+			if (excludeCell != null) {
+				ArrayList<String> excludeSuffixes = new ArrayList<String>(
+						Arrays.asList(excludeCell.getStringCellValue().split(";")));
+				renameLabel = new SumAndDeleteCategoryDTO(variableName, replacementName, excludeSuffixes);
+			} else {
+				renameLabel = new SumAndDeleteCategoryDTO(variableName, replacementName, null);
+
+			}
+
+			renameCategoryList.add(renameLabel);
+			currentRow++;
+		}
+		
+		// Reset the currentRow
+		currentRow = rowStart;
+		
+		while (true) {
+			row = dataModificationSheet.getRow(currentRow);
+			if (row == null) {
+				break;
+			}
+			Cell eventCategory = row.getCell(0 + renameLabelStart);
+			Cell eventLabel = row.getCell(1 + renameLabelStart);
+			Cell replacementNameCell = row.getCell(2 + renameLabelStart);
+			Cell excludeCell = row.getCell(3 + renameLabelStart);
+
+			// If either of the strings are null, some data are missing and the calculation
+			// cannot be performed
+			if (eventCategory == null || eventLabel == null || replacementNameCell == null) {
+				break;
+			}
+			
+			String eventCategoryName = eventCategory.getStringCellValue();
+			String eventLabelName = eventLabel.getStringCellValue();
+			String replacementName = replacementNameCell.getStringCellValue();
+			
+			//Break if either of the lengths of the names are missing
+			if(eventCategoryName.length() == 0 || eventLabelName.length() == 0 || replacementName.length() == 0) {
+				break;
+			}
+			
 			SumAndDeleteLabelDTO renameLabel;
 			if (excludeCell != null) {
 				ArrayList<String> excludeSuffixes = new ArrayList<String>(
 						Arrays.asList(excludeCell.getStringCellValue().split(";")));
-				renameLabel = new SumAndDeleteLabelDTO(variableName, replacementName, excludeSuffixes);
+				renameLabel = new SumAndDeleteLabelDTO(eventCategoryName, eventLabelName, replacementName, excludeSuffixes);
 			} else {
-				renameLabel = new SumAndDeleteLabelDTO(variableName, replacementName, null);
+				renameLabel = new SumAndDeleteLabelDTO(eventCategoryName, eventLabelName, replacementName, null);
 
 			}
-
+			System.out.println(renameLabel);
 			renameLabelList.add(renameLabel);
 			currentRow++;
 		}
-		//
-		// // Reset the currentRow
-		// currentRow = rowStart;
-		//
-		// // Read the variables to summed and deleted
-		// while (true) {
-		// row = dataModificationSheet.getRow(currentRow);
-		// if (row == null) {
-		// break;
-		// }
-		//
-		// Cell variable1 = row.getCell(0 + sumAndDeleteStart);
-		// Cell variable2 = row.getCell(1 + sumAndDeleteStart);
-		//
-		// // If either of the strings are null, some data are missing and the
-		// calculation
-		// // cannot be performed
-		// if (variable1 == null || variable2 == null) {
-		// break;
-		// }
-		//
-		// String variable1Name = variable1.getStringCellValue();
-		// String variable2Name = variable2.getStringCellValue();
-		//
-		// SumAndDeleteDTO sumAndDelete = new SumAndDeleteDTO(variable1Name,
-		// variable2Name);
-		//
-		// sumAndDeleteList.add(sumAndDelete);
-		// currentRow++;
-		// }
-		//
 		// dataModificationDTO.setColumnCalculationList(columnCalculationList);
-		dataModification2DTO.setRenameVariableList(renameLabelList);
+		dataModification2DTO.setRenameCategoryList(renameCategoryList);
+		dataModification2DTO.setRenameLabelList(renameLabelList);
 		// dataModificationDTO.setSumAndDeleteList(sumAndDeleteList);
 
 		return dataModification2DTO;

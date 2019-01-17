@@ -16,6 +16,7 @@ import dataTransferObjects.FileInformationDTO;
 import dataTransferObjects.RecurringData;
 import dataTransferObjects.RecurringDataEntry;
 import dataTransferObjects.RenameVariableDTO;
+import dataTransferObjects.SumAndDeleteCategoryDTO;
 import dataTransferObjects.SumAndDeleteDTO;
 import dataTransferObjects.SumAndDeleteLabelDTO;
 import excel.ExcelInputController;
@@ -91,8 +92,11 @@ public class Controller {
 		renameDataVariables(generalData);
 
 		System.out.println("Omdøber hændelseskategorier");
-		generalData = sumAndDeleteLabels(generalData);
-
+		generalData = sumAndDeleteCategory(generalData);
+		
+		System.out.println("Omdøber og samler hændelsetiketer");
+		generalData = sumAndDeleteLabel(generalData);
+		
 		System.out.println("Summérer og sletter variable");
 		generalData = sumAndDelete(generalData);
 
@@ -467,18 +471,18 @@ public class Controller {
 
 	}
 
-	private AnalyticsDTO sumAndDeleteLabels(AnalyticsDTO analyticsDTO) {
+	private AnalyticsDTO sumAndDeleteCategory(AnalyticsDTO analyticsDTO) {
 		//Check to see if we actually have any work to do.
-		if(values.getDataModification2DTO().getSumAndDeleteLabelsList().isEmpty()) {
+		if(values.getDataModification2DTO().getRenameCategoryList().isEmpty()) {
 			return analyticsDTO;
 		}
 		//Run through each file in the list
 		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
 			FileDTO data = analyticsDTO.getFileList().get(i);
 			//Run through each sumAndDeleteLabelDTO entry
-			for (SumAndDeleteLabelDTO sumAndDeleteLabelDTO : values.getDataModification2DTO().getSumAndDeleteLabelsList()) {
+			for (SumAndDeleteCategoryDTO sumAndDeleteLabelDTO : values.getDataModification2DTO().getRenameCategoryList()) {
 				//Find all entries with the corrosponding prefix
-				HashMap<String, ArrayList<String>> keysToAddTogether = getVariablesWithPrefix(data, sumAndDeleteLabelDTO);
+				HashMap<String, ArrayList<String>> keysToAddTogether = getCategoryVariablesWithPrefix(data, sumAndDeleteLabelDTO);
 				//Combine the found values
 				HashMap<String, ArrayList<String>> combinedValues = combineValuesFromKeys(data, keysToAddTogether);
 
@@ -523,8 +527,8 @@ public class Controller {
 	 * @param preffix
 	 * @return HashMap<String, ArrayList<String>>
 	 */
-	private HashMap<String, ArrayList<String>> getVariablesWithPrefix(FileDTO data,
-			SumAndDeleteLabelDTO sumAndDeleteLabelDTO) {
+	private HashMap<String, ArrayList<String>> getCategoryVariablesWithPrefix(FileDTO data,
+			SumAndDeleteCategoryDTO sumAndDeleteLabelDTO) {
 		// Create return value
 		HashMap<String, ArrayList<String>> returnValue = new HashMap<String, ArrayList<String>>();
 		// Run through all of the keys
@@ -599,5 +603,118 @@ public class Controller {
 		}
 		return returnValue;
 	}
+	private AnalyticsDTO sumAndDeleteLabel(AnalyticsDTO analyticsDTO) {
+		//Check to see if we actually have any work to do.
+		if(values.getDataModification2DTO().getRenameLabelList().isEmpty()) {
+			return analyticsDTO;
+		}
+		//Run through each file in the list
+		for (int i = 0; i < analyticsDTO.getFileList().size(); i++) {
+			FileDTO data = analyticsDTO.getFileList().get(i);
+			//Run through each sumAndDeleteLabelDTO entry
+			for (SumAndDeleteLabelDTO sumAndDeleteLabelDTO : values.getDataModification2DTO().getRenameLabelList()) {
+				//Find all entries with the corrosponding prefix
+				HashMap<String, ArrayList<String>> keysToAddTogether = getLabelVariablesWithPrefix(data, sumAndDeleteLabelDTO);
+				//Combine the found values
+				HashMap<String, ArrayList<String>> combinedValues = combineValuesFromKeys(data, keysToAddTogether);
 
+				//Delete the old values
+				for (String key : keysToAddTogether.keySet()) {
+					// Iterate over the keys in the ArrayList<String>
+					ArrayList<String> elementKeys = keysToAddTogether.get(key);
+					for (String rowKey : elementKeys) {
+						data.deleteRow(rowKey);
+
+					}
+				}
+				data.updateKeys();
+
+				//Generate new keys and add the values to the AnalyticsDTO
+				for(String key : combinedValues.keySet()) {
+					ArrayList<String> row = combinedValues.get(key);
+					row.set(2, sumAndDeleteLabelDTO.getReplacementName());
+					String finalKey = row.get(0) + ";" + row.get(1) + ";" + sumAndDeleteLabelDTO.getReplacementName();
+					data.addRow(finalKey, row);
+
+				}
+
+
+
+
+			}
+			analyticsDTO.getFileList().set(i, data);
+
+
+
+		}
+		return analyticsDTO;
+	}
+
+	private HashMap<String, ArrayList<String>> getLabelVariablesWithPrefix(FileDTO data,
+			SumAndDeleteLabelDTO sumAndDeleteLabelDTO) {
+		// Create return value
+		HashMap<String, ArrayList<String>> returnValue = new HashMap<String, ArrayList<String>>();
+		// Run through all of the keys
+		for (String key : data.getKeys()) {
+			// Check if the corresponding row matches the category and starts with he prefix.
+			
+			if (data.getRow(key).get(0).equals(sumAndDeleteLabelDTO.getEventCategory()) && data.getRow(key).get(2).startsWith(sumAndDeleteLabelDTO.getEventLabel())) {
+				// Check whether or whether not the label ends with the suffix
+				boolean toExclude = false; // If true, it shall be excluded.
+				if(sumAndDeleteLabelDTO.getExcludeSuffixes() != null)  {
+					for (String suffix : sumAndDeleteLabelDTO.getExcludeSuffixes()) {
+						if (data.getRow(key).get(2).endsWith(suffix)) {
+							toExclude = true;
+							break;
+						}
+					}
+				}
+				if (toExclude) {
+					continue;
+				}
+				// The value shall not be excluded.
+				// Create new key for the HashMap
+				String HashMapKey = data.getRow(key).get(0) + ";" + data.getRow(key).get(1) + ";" + sumAndDeleteLabelDTO.getReplacementName();
+				// Check if the Action + label is in the HashMap
+				if (returnValue.containsKey(HashMapKey)) {
+					// Fetch the already existing ArrayList<String> of keys
+					ArrayList<String> keys = returnValue.get(HashMapKey);
+					// Add the new key to the collection
+					keys.add(key);
+					// Update the HashMap
+					returnValue.put(HashMapKey, keys);
+
+				}
+				// The HashMapKey doesn't exist in the HashMap.
+				// Create a new ArrayList<String> with the key and map it to HashMapKey
+				else {
+					ArrayList<String> keys = new ArrayList<String>();
+					keys.add(key);
+					returnValue.put(HashMapKey, keys);
+				}
+
+			}
+
+		}
+		return returnValue;
+	}
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

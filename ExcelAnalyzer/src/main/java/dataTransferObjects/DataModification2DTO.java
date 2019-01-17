@@ -4,33 +4,38 @@ import java.util.ArrayList;
 
 public class DataModification2DTO {
 
-	ArrayList<SumAndDeleteLabelDTO> renameVariableList = new ArrayList<SumAndDeleteLabelDTO>();
-	ArrayList<ThresholdDTO> columnCalculationList = new ArrayList<ThresholdDTO>();
+	ArrayList<SumAndDeleteCategoryDTO> renameCategoryList = new ArrayList<SumAndDeleteCategoryDTO>();
+	ArrayList<SumAndDeleteLabelDTO> renameLabelList = new ArrayList<SumAndDeleteLabelDTO>();
 
 	public DataModification2DTO() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ArrayList<ThresholdDTO> getColumnCalculationList() {
-		return columnCalculationList;
+
+	public ArrayList<SumAndDeleteCategoryDTO> getRenameCategoryList() {
+		return renameCategoryList;
 	}
 
-	public void setColumnCalculationList(ArrayList<ThresholdDTO> columnCalculationList) {
-		this.columnCalculationList = columnCalculationList;
+
+	public void setRenameCategoryList(ArrayList<SumAndDeleteCategoryDTO> renameCategoryList) {
+		this.renameCategoryList = renameCategoryList;
 	}
 
-	public ArrayList<SumAndDeleteLabelDTO> getSumAndDeleteLabelsList() {
-		return renameVariableList;
+
+	public ArrayList<SumAndDeleteLabelDTO> getRenameLabelList() {
+		return renameLabelList;
 	}
 
-	public void setRenameVariableList(ArrayList<SumAndDeleteLabelDTO> renameVariableList) {
-		this.renameVariableList = renameVariableList;
+
+	public void setRenameLabelList(ArrayList<SumAndDeleteLabelDTO> renameLabelList) {
+		this.renameLabelList = renameLabelList;
 	}
+
 
 	@Override
 	public String toString() {
-		return "DataModification2DTO [columnCalculationList=" + columnCalculationList + ", renameVariableList="
-				+ renameVariableList + "]";
+		return "DataModification2DTO [columnCalculationList=" + renameLabelList + ", renameVariableList="
+				+ renameCategoryList + "]";
 	}
 
 }
