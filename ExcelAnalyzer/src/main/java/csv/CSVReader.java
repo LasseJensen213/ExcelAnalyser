@@ -109,19 +109,18 @@ public class CSVReader {
 
 			}
 			analyticsDTO.addFile(csvFile);
-
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			try {
+				
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+			
 		}
 
 	}
