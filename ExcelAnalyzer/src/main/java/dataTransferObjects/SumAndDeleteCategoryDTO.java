@@ -16,7 +16,6 @@ public class SumAndDeleteCategoryDTO {
 		this.excludeSuffixes = excludeSuffixes;
 		if (this.excludeSuffixes != null) {
 			Collections.sort(excludeSuffixes, new SumAndDeleteLabelComparator());
-			System.out.println(this.excludeSuffixes);
 		}
 	}
 

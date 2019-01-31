@@ -79,7 +79,7 @@ public class FilePathReader {
 
 				for (int j = 0; j < directoryFiles.length; j++) {
 					if (directoryFiles[j].isFile()) {
-						System.out.println("File: " + directoryFiles[j].getName());
+						//System.out.println("File: " + directoryFiles[j].getName());
 						this.fileNames.add(new FileInformationDTO(directoryFiles[j].getName(), directory.getName()));
 					}
 				}

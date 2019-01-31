@@ -121,11 +121,7 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// Enable the user to see the log.
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Press enter to close");
-		scanner.nextLine();
-		scanner.close();
+		
 
 	}
 

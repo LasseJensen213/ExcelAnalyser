@@ -387,7 +387,7 @@ public class ExcelInputController {
 				renameLabel = new SumAndDeleteLabelDTO(eventCategoryName, eventLabelName, replacementName, null);
 
 			}
-			System.out.println(renameLabel);
+			//System.out.println(renameLabel);
 			renameLabelList.add(renameLabel);
 			currentRow++;
 		}

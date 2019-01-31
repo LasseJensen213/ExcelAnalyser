@@ -26,12 +26,13 @@ public class Main {
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} finally {
-			Scanner scanner = new Scanner(System.in);
-			System.out.println("Press enter to close");
-			scanner.nextLine();
-			scanner.close();
 		}
+		
+		// Enable the user to see the log.
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Press enter to close");
+		scanner.nextLine();
+		scanner.close();
 
 	}
 

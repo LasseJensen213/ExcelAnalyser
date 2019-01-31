@@ -32,7 +32,7 @@ public class CSVReader {
 		// Create a new sheetDTO with the fileName
 		analyticsDTO.addDirectory(directoryName);
 		FileDTO csvFile = new FileDTO(fileName, directoryName);
-		System.out.println(finalPath);
+		//System.out.println(finalPath);
 
 		try {
 			// Create the reader
